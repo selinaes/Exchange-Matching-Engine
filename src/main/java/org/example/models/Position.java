@@ -1,43 +1,44 @@
 package org.example.models;
 
 import javax.persistence.*;
+
 import org.hibernate.annotations.GenericGenerator;
 
-class Position {
+public class Position {
 
-    @Id
-    @GeneratedValue(generator = "increment")
-    @GenericGenerator(name = "increment", strategy = "increment")
-    private String id;
+  @Id
+  @GeneratedValue(generator = "increment")
+  @GenericGenerator(name = "increment", strategy = "increment")
+  private String id;
 
-    @Column(nullable = false)
-    private String symbol;
-    private double quantity;
+  @Column(nullable = false)
+  private String symbol;
+  private double quantity;
 
-    @ManyToOne
-    private Account account;
+  @ManyToOne
+  private Account account;
 
-    public Position() {
-    }
+  public Position() {
+  }
 
-    public Position(String symbol, double quantity) {
-        this.symbol = symbol;
-        this.quantity = quantity;
-    }
+  public Position(String symbol, double quantity) {
+    this.symbol = symbol;
+    this.quantity = quantity;
+  }
 
-    public String getSymbol() {
-        return this.symbol;
-    }
+  public String getSymbol() {
+    return this.symbol;
+  }
 
-    public double getQuantity() {
-        return this.quantity;
-    }
+  public double getQuantity() {
+    return this.quantity;
+  }
 
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
-    }
+  public void setQuantity(int quantity) {
+    this.quantity = quantity;
+  }
 
-    public String toString() {
-        return "Position: " + this.symbol + " " + this.quantity;
-    }
+  public String toString() {
+    return "Position: " + this.symbol + " " + this.quantity;
+  }
 }
