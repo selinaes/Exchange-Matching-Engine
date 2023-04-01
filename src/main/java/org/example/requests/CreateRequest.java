@@ -67,10 +67,9 @@ public class CreateRequest implements Request {
     return res;
   }
 
-  private List<SubTransactionRequest> subTransactionRequestsBuilder(Element element) {
-    return null;
+  public List<SubCreateRequest> getSubCreateRequests() {
+    return subCreateRequests;
   }
-
 
   @Override
   public void execute() {

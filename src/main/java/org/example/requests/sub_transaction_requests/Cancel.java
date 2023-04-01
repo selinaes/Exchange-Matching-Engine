@@ -1,9 +1,9 @@
 package org.example.requests.sub_transaction_requests;
 
-public class Query implements SubTransactionRequest{
+public class Cancel implements SubTransactionRequest{
   private String transactionId;
 
-  public Query(String transactionId) {
+  public Cancel(String transactionId) {
     this.transactionId = transactionId;
   }
 
