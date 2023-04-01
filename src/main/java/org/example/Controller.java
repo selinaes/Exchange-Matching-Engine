@@ -1,9 +1,6 @@
 package org.example;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.StringReader;
-import java.util.List;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
@@ -11,8 +8,6 @@ import javax.xml.parsers.DocumentBuilder;
 import org.example.requests.CreateRequest;
 import org.example.requests.TransactionRequest;
 import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 
 import org.example.requests.Request;
@@ -20,7 +15,7 @@ import org.xml.sax.InputSource;
 
 
 public class Controller {
-  public Element parseXML(String xml) {
+  public static Request parseXML(String xml) {
     try {
 //      File inputFile = new File(filename);
 //      System.out.println(inputFile);
@@ -33,7 +28,7 @@ public class Controller {
       String type = request.getNodeName();
 //      System.out.println(type);
 
-      Request r = requestBuild(type, request);
+      return requestBuilder(type, request);
 
       //有一个input
 //      ByteArrayInputStream in = new ByteArrayInputStream(inputFile.toString().getBytes());
@@ -61,22 +56,22 @@ public class Controller {
     return null;
   }
 
-  public Request requestBuild(String type, Element element) {
+  public static Request requestBuilder(String type, Element element) {
     switch (type) {
       case "create":
         return new CreateRequest(element);
       case "transaction":
         return new TransactionRequest(element);
       default:
-        return null;
+        throw new IllegalArgumentException("Invalid request");
     }
   }
 
-  public static void executeRequest(List<Request> request) {
-    for (Request r : request) {
-      r.execute();
-    }
-  }
+//  public static void executeRequest(List<Request> request) {
+//    for (Request r : request) {
+//      r.execute();
+//    }
+//  }
 
 //  public static void main(String[] args) {
 //    System.out.println(true);

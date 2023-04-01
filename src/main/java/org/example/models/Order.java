@@ -30,6 +30,9 @@ public class Order {
         OPEN, EXECUTED, CANCELLED
     }
 
+    public Order() {
+    }
+
     public Order(double amount, double limitPrice, String symbol, Account account) {
         this.amount = amount;
         this.limitPrice = limitPrice;

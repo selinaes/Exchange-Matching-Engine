@@ -13,8 +13,8 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 
-    implementation 'org.postgresql:postgresql:42.2.10'
-    implementation group: 'org.hibernate', name: 'hibernate-core', version: '6.1.7.Final'
+    implementation 'org.postgresql:postgresql:42.2.27'
+    implementation group: 'org.hibernate', name: 'hibernate-core', version: '5.3.27.Final'
     implementation group: 'org.hibernate.javax.persistence', name: 'hibernate-jpa-2.1-api', version: '1.0.0.Final'
 }
 

@@ -12,8 +12,8 @@ import javax.persistence.Table;
 @Table(name = "accounts")
 public class Account {
     @Id
-    @GeneratedValue(generator = "increment")
-    @GenericGenerator(name = "increment", strategy = "increment")
+//    @GeneratedValue(generator = "increment")
+//    @GenericGenerator(name = "increment", strategy = "increment")
     private String id;
 
     private double balance;
@@ -45,6 +45,10 @@ public class Account {
 
     public String getId() {
         return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public double getBalance() {

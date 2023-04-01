@@ -52,6 +52,8 @@ public class TransactionRequest implements Request {
         transactionId = element.getAttribute("id");
         res.add(new Cancel(transactionId));
         break;
+      default:
+        throw new IllegalArgumentException("Invalid create request");
     }
     return res;
   }

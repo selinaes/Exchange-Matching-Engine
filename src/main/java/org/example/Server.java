@@ -1,5 +1,8 @@
 package org.example;
 
+import org.example.requests.Request;
+import org.hibernate.SessionFactory;
+
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.io.IOException;
@@ -11,12 +14,13 @@ import java.util.concurrent.TimeUnit;
 
 
 public class Server {
-  private ServerSocket serverSocket;
+  private final ServerSocket serverSocket;
   BlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<Runnable>(32);
   ThreadPoolExecutor executor = new ThreadPoolExecutor(10, 10, 5, TimeUnit.MILLISECONDS, workQueue);
   ArrayList<Client> clients = new ArrayList<>();
 
-  Controller controller = new Controller();
+//  Controller controller = new Controller();
+//  SessionFactory sessionFactory = SessionFactoryWrapper.getSessionFactoryInstance();
 
   public Server(int port) throws IOException {
     this.serverSocket = new ServerSocket(port);
@@ -58,19 +62,20 @@ public class Server {
       throw new RuntimeException(e);
     }
 
-    if (xml == null){
-        System.out.println("xml not received");
-      } else {
+    if (xml == null) {
+      System.out.println("xml not received");
+    } else {
       System.out.println("Received xml: ");
-        System.out.println(xml);
-        controller.parseXML(xml);
-        // create request, process, send response
-      }
+      System.out.println(xml);
+      Request r = Controller.parseXML(xml);
+      System.out.println(r);
+      // create request, process, send response
+    }
   }
 
   /**
    * This is a helper method to accept a socket from the ServerSocket or return null if it
-   * timesout.
+   * timeouts.
    *
    * @return the socket accepted from the ServerSocket
    */
