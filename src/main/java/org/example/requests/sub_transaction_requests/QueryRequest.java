@@ -1,9 +1,15 @@
 package org.example.requests.sub_transaction_requests;
 
-public class Cancel implements SubTransactionRequest{
+import org.example.results.subResults.SubResult;
+
+public class QueryRequest implements SubTransactionRequest {
   private String transactionId;
 
-  public Cancel(String transactionId) {
+  private String accountId;
+
+  public QueryRequest(String accountId, String transactionId) {
+
+    this.accountId = accountId;
     this.transactionId = transactionId;
   }
 
@@ -13,5 +19,10 @@ public class Cancel implements SubTransactionRequest{
 
   public void setTransactionId(String transactionId) {
     this.transactionId = transactionId;
+  }
+
+  @Override
+  public SubResult execute() {
+    return null;
   }
 }

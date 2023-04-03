@@ -1,5 +1,8 @@
 package org.example;
 
+import org.hibernate.HibernateError;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
@@ -55,11 +58,15 @@ public class SessionFactoryWrapper {
 //    return instance.connection;
 //  }
 
-  public static synchronized SessionFactory getSessionFactoryInstance() {
+  private static synchronized SessionFactory getSessionFactoryInstance() {
     if (instance == null) {
       instance = new SessionFactoryWrapper();
     }
     return instance.sessionFactory;
+  }
+
+  public static synchronized Session openSession()  {
+    return getSessionFactoryInstance().openSession();
   }
 
   public static synchronized void shutdown() {

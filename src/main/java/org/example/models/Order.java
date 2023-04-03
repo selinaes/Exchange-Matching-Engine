@@ -2,97 +2,127 @@ package org.example.models;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.time.Instant;
 
 import javax.persistence.*;
+
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 @Table(name = "orders")
 public class Order {
 
-    @Id
-    @GeneratedValue(generator = "increment")
-    @GenericGenerator(name = "increment", strategy = "increment")
-    private String id;
+  @Id
+  @GeneratedValue(generator = "uuid")
+  @GenericGenerator(name = "uuid", strategy = "uuid")
+  private String id;
 
-    private double amount;
-    private double limitPrice;
-    private String symbol;
+  //@ManyToOne
+  private String parentId;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Status status;
+  private double amount;
+  private double limitPrice;
+  private String symbol;
 
-    @ManyToOne
-    private Account account;
+  private long time;
 
-    public enum Status {
-        OPEN, EXECUTED, CANCELLED
-    }
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private Status status;
 
-    public Order() {
-    }
+  @ManyToOne
+  private Account account;
 
-    public Order(double amount, double limitPrice, String symbol, Account account) {
-        this.amount = amount;
-        this.limitPrice = limitPrice;
-        this.symbol = symbol;
-        this.account = account;
-        this.status = Status.OPEN;
-    }
+  public enum Status {
+    OPEN, EXECUTED, CANCELLED
+  }
 
-    public double getAmount() {
-        return amount;
-    }
+  public Order() {
+    this.status = Status.OPEN;
+    this.time = Instant.now().getEpochSecond();
+  }
 
-    public double getLimitPrice() {
-        return limitPrice;
-    }
+  public Order(double amount, double limitPrice, String symbol, Account account) {
+    this.amount = amount;
+    this.limitPrice = limitPrice;
+    this.symbol = symbol;
+    this.account = account;
+    this.status = Status.OPEN;
+    this.time = Instant.now().getEpochSecond();
+  }
 
-    public String getSymbol() {
-        return symbol;
-    }
+  public double getAmount() {
+    return amount;
+  }
 
-    public Status getStatus() {
-        return status;
-    }
+  public double getLimitPrice() {
+    return limitPrice;
+  }
 
-    public Account getAccount() {
-        return account;
-    }
+  public String getSymbol() {
+    return symbol;
+  }
 
-    public void setStatus(Status status) {
-        this.status = status;
-    }
+  public Status getStatus() {
+    return status;
+  }
 
-    public String getId() {
-        return id;
-    }
+  public Account getAccount() {
+    return account;
+  }
 
-    public void setAmount(double amount) {
-        this.amount = amount;
-    }
+  public void setStatus(Status status) {
+    this.status = status;
+  }
 
-    public void setLimitPrice(double limitPrice) {
-        this.limitPrice = limitPrice;
-    }
+  public String getId() {
+    return id;
+  }
 
-    public void setSymbol(String symbol) {
-        this.symbol = symbol;
-    }
+  public void setAmount(double amount) {
+    this.amount = amount;
+  }
 
-    public void setAccount(Account account) {
-        this.account = account;
-    }
+  public void setLimitPrice(double limitPrice) {
+    this.limitPrice = limitPrice;
+  }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+  public void setSymbol(String symbol) {
+    this.symbol = symbol;
+  }
 
-    public String toString() {
-        return "Order [id=" + id + ", amount=" + amount + ", limitPrice=" + limitPrice + ", symbol=" + symbol + ", status=" + status + ", account=" + account + "]";
-    }
+  public void setAccount(Account account) {
+    this.account = account;
+  }
 
-    
+  public void setId(String id) {
+    this.id = id;
+  }
+
+  public String getParentId() {
+    return parentId;
+  }
+
+  public void setParentId(String parentId) {
+    this.parentId = parentId;
+  }
+
+  public long getTime() {
+    return time;
+  }
+
+  public void setTime(long time) {
+    this.time = time;
+  }
+
+  public void setTimeToNow() {
+    this.time = Instant.now().getEpochSecond();
+  }
+
+  public String toString() {
+    return "Order [id=" + id + ", amount=" + amount + ", limitPrice=" + limitPrice + ", symbol="
+           + symbol + ", status=" + status + ", account=" + account + "]";
+  }
+
 
 }

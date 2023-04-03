@@ -3,11 +3,10 @@ package org.example.requests;
 import org.example.requests.sub_create_requests.CreateAccount;
 import org.example.requests.sub_create_requests.CreateSymbol;
 import org.example.requests.sub_create_requests.SubCreateRequest;
-import org.example.requests.sub_transaction_requests.SubTransactionRequest;
+import org.example.results.Result;
+import org.example.results.subResults.SubResult;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.ls.DOMImplementationLS;
-import org.w3c.dom.ls.LSSerializer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +24,7 @@ public class CreateRequest implements Request {
       if (nList.item(i).getNodeType() == Element.ELEMENT_NODE) {
         Element subElement = (Element) nList.item(i);
 
-        System.out.println("main nood child: " + subElement.getNodeName());
+//        System.out.println("main nood child: " + subElement.getNodeName());
 //        DOMImplementationLS lsImpl = (DOMImplementationLS) subElement.getOwnerDocument().getImplementation().getFeature("LS", "3.0");
 //        LSSerializer serializer = lsImpl.createLSSerializer();
 //        serializer.getDomConfig().setParameter("xml-declaration", false); //by default its true, so set it to false to get String without xml-declaration
@@ -38,15 +37,15 @@ public class CreateRequest implements Request {
 
 
   private List<SubCreateRequest> subCreateRequestsBuilder(Element element) {
-    System.out.println("subCreateRequestsBuilder: " + element.getNodeName());
+//    System.out.println("subCreateRequestsBuilder: " + element.getNodeName());
     List<SubCreateRequest> res = new ArrayList<>();
     String accountId;
     switch (element.getNodeName()) {
       case "account":
         accountId = element.getAttribute("id");
-        System.out.println(accountId);
+//        System.out.println(accountId);
         String balance = element.getAttribute("balance");
-        System.out.println(balance);
+//        System.out.println(balance);
         res.add(new CreateAccount(accountId, Double.parseDouble(balance)));
         break;
       case "symbol":
@@ -72,7 +71,19 @@ public class CreateRequest implements Request {
   }
 
   @Override
-  public void execute() {
+  public Result execute() {
+    Result result = new Result();
+    for (SubCreateRequest subCreateRequest : subCreateRequests) {
+      SubResult subResult = subCreateRequest.execute();
+      result.addSubResult(subResult);
+    }
+    return result;
+  }
 
+  @Override
+  public String toString() {
+    return "CreateRequest{" +
+           "subCreateRequests=" + subCreateRequests +
+           '}';
   }
 }

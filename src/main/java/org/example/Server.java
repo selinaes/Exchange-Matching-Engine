@@ -1,7 +1,9 @@
 package org.example;
 
 import org.example.requests.Request;
-import org.hibernate.SessionFactory;
+import org.example.results.Result;
+import org.hibernate.Session;
+import org.xml.sax.SAXException;
 
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -12,6 +14,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import javax.xml.parsers.ParserConfigurationException;
+
 
 public class Server {
   private final ServerSocket serverSocket;
@@ -19,8 +23,6 @@ public class Server {
   ThreadPoolExecutor executor = new ThreadPoolExecutor(10, 10, 5, TimeUnit.MILLISECONDS, workQueue);
   ArrayList<Client> clients = new ArrayList<>();
 
-//  Controller controller = new Controller();
-//  SessionFactory sessionFactory = SessionFactoryWrapper.getSessionFactoryInstance();
 
   public Server(int port) throws IOException {
     this.serverSocket = new ServerSocket(port);
@@ -28,6 +30,7 @@ public class Server {
   }
 
   public void run() {
+    System.out.println("Server started");
     while (!Thread.currentThread().isInterrupted()) {
       final Socket client_socket = acceptOrNull();
       Client client = new Client(client_socket);
@@ -51,26 +54,45 @@ public class Server {
   }
 
   public void handleClient(Client client) {
-    String length = null;
-    String xml = null;
+    String length;
+    String xml;
     try {
       length = client.recvLine();
       int xmlLen = Integer.parseInt(length);
-      System.out.println("xmlLen is " + xmlLen);
+//      System.out.println("xmlLen is " + xmlLen);
       xml = client.recvBytes(xmlLen);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-
-    if (xml == null) {
-      System.out.println("xml not received");
-    } else {
+    try {
       System.out.println("Received xml: ");
       System.out.println(xml);
-      Request r = Controller.parseXML(xml);
-      System.out.println(r);
-      // create request, process, send response
+      Request r = Parser.parseXML(xml);
+      Result response = r.execute();
+//      System.out.println(r);
+      client.send(response.toXMLString());
+
+//      System.out.println(response.toXMLString());
+    } catch (ParserConfigurationException e) {
+      System.out.println("ParserConfigurationException");
+    } catch (IOException e) {
+      System.out.println("IOException");
+    } catch (SAXException e) {
+      System.out.println("SAXException");
     }
+
+
+//    if (xml == null) {
+//      System.out.println("xml not received");
+//    } else {
+//      System.out.println("Received xml: ");
+//      System.out.println(xml);
+//      Request r = Parser.parseXML(xml);
+////      Session session = SessionFactoryWrapper.getSessionFactoryInstance().openSession();
+//      r.execute();
+//      System.out.println(r);
+//      // create request, process, send response
+//    }
   }
 
   /**

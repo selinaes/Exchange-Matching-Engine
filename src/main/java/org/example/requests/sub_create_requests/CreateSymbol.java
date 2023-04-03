@@ -1,5 +1,11 @@
 package org.example.requests.sub_create_requests;
 
+import org.example.RequestException;
+import org.example.Service;
+import org.example.results.subResults.Created;
+import org.example.results.subResults.ErrorResult;
+import org.example.results.subResults.SubResult;
+
 public class CreateSymbol implements SubCreateRequest {
   private String name;
   private String accountId;
@@ -35,5 +41,28 @@ public class CreateSymbol implements SubCreateRequest {
     this.amount = amount;
   }
 
+  @Override
+  public SubResult execute() {
+    try {
+      Service.createSymbol(this);
+      SubResult created = new Created();
+      created.addAttribute("sym", this.getName());
+      created.addAttribute("id", this.getAccountId());
+    } catch (RequestException e) {
+      SubResult error = new ErrorResult(e.getMessage());
+      error.addAttribute("sym", this.getName());
+      error.addAttribute("id", this.getAccountId());
+      return error;
+    }
+    return null;
+  }
 
+  @Override
+  public String toString() {
+    return "CreateSymbol{" +
+           "name='" + name + '\'' +
+           ", accountId='" + accountId + '\'' +
+           ", amount=" + amount +
+           '}';
+  }
 }

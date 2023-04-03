@@ -42,12 +42,11 @@ public class Client {
   public String recvLine() throws IOException {
     StringBuilder res = new StringBuilder();
     boolean finished = false;
-    while (!finished){
+    while (!finished) {
       int c = this.dataInputStream.read();
-      if (c == '\n'){
+      if (c == '\n') {
         finished = true;
-      }
-      else if (Character.isDigit(c)) {
+      } else if (Character.isDigit(c)) {
         res.append((char) c);
       } else {
         throw new IOException("xml length wrong format");
@@ -58,13 +57,17 @@ public class Client {
 
   public String recvBytes(int numBytes) throws IOException {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
-      byte[] buffer = new byte[numBytes];
-      buffer = dataInputStream.readNBytes(numBytes);
-      System.out.println("Received bytes: " + Arrays.toString(buffer));
-      return new String(buffer, StandardCharsets.UTF_8);
+    byte[] buffer = new byte[numBytes];
+    buffer = dataInputStream.readNBytes(numBytes);
+//    System.out.println("Received bytes: " + Arrays.toString(buffer));
+    return new String(buffer, StandardCharsets.UTF_8);
 
   }
 
+  public void send(String string) {
+    this.output.write(string);
+    this.output.flush();
+  }
 
 
 }
