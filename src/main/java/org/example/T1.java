@@ -19,8 +19,8 @@ public class T1 {
 //      StringBuilder stringBuilder = new StringBuilder();
       String line;
       String ls = System.getProperty("line.separator");
-      out.write("173");
-      out.write(ls);
+//      out.write("500");
+//      out.write(ls);
       while ((line = reader.readLine()) != null) {
         System.out.println(line);
 //        stringBuilder.append(line);
@@ -43,13 +43,13 @@ public class T1 {
     } catch (IOException e) {
       e.printStackTrace();
     } finally {
-      if (in != null) {
-        try {
-          String input = in.readLine();
-          System.out.println(input);
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
+//      if (in != null) {
+//        try {
+//          String input = in.readLine();
+//          System.out.println(input);
+//        } catch (IOException e) {
+//          e.printStackTrace();
+//        }
 
       }
 
@@ -57,4 +57,4 @@ public class T1 {
 
 
   }
-}
+

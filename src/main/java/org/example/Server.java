@@ -59,7 +59,7 @@ public class Server {
     try {
       length = client.recvLine();
       int xmlLen = Integer.parseInt(length);
-//      System.out.println("xmlLen is " + xmlLen);
+      System.out.println("xmlLen is " + xmlLen);
       xml = client.recvBytes(xmlLen);
     } catch (IOException e) {
       throw new RuntimeException(e);
