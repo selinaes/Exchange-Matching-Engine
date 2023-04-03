@@ -14,6 +14,9 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 
     implementation 'org.postgresql:postgresql:42.2.27'
+    // org.hibernate.validator
+    implementation group: 'javax.validation', name:'validation-api', version: '2.0.1.Final'
+    implementation group: 'org.hibernate.validator', name: 'hibernate-validator', version: '6.0.13.Final'
     implementation group: 'org.hibernate', name: 'hibernate-core', version: '5.3.27.Final'
     implementation group: 'org.hibernate.javax.persistence', name: 'hibernate-jpa-2.1-api', version: '1.0.0.Final'
 }

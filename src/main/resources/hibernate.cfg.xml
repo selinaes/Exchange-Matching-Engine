@@ -14,7 +14,7 @@
         <property name="hibernate.connection.password">ruqiulixia0220</property>
 
         <!-- SQL dialect -->
-        <property name="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</property>
+        <property name="hibernate.dialect">org.hibernate.dialect.PostgreSQL82Dialect</property>
 
         <!-- Print executed SQL to stdout -->
         <property name="hibernate.show_sql">true</property>
@@ -31,6 +31,7 @@
         <mapping class="org.example.models.Account"/>
         <mapping class="org.example.models.Order"/>
         <mapping class="org.example.models.Position"/>
+        <mapping class="org.example.models.Symbol"/>
 
 
     </session-factory>
