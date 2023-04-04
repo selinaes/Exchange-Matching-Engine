@@ -75,6 +75,8 @@ public class UserController {
 //    System.out.println("Connected");
 //    client.sendMessage("173");
 //    System.out.println("Connected");
+
+//    client.sendFile("src/main/java/org/example/input.txt");
     client.sendFile("src/main/java/org/example/input2.txt");
 //    System.out.println(response);
 //    client.recMsg();
