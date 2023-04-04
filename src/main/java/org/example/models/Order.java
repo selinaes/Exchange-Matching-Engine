@@ -23,6 +23,7 @@ public class Order {
 
   private double amount;
   private double limitPrice;
+  private double executedPrice;
   private String symbol;
 
   private long time;
@@ -87,6 +88,14 @@ public class Order {
   public void setLimitPrice(double limitPrice) {
     this.limitPrice = limitPrice;
   }
+
+  public void setExecutedPrice(double executedPrice) {
+    this.executedPrice = executedPrice;
+  }
+
+    public double getExecutedPrice() {
+        return executedPrice;
+    }
 
   public void setSymbol(String symbol) {
     this.symbol = symbol;

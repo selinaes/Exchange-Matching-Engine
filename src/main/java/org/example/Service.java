@@ -130,6 +130,10 @@ public class Service {
         throw new RequestException("Can't open order with non-positive limit price");
       }
 
+      if (orderRequest.getAmount() == 0) {
+        throw new RequestException("Can't open order with 0 amount");
+      }
+
       // check not enough shares or not enough money + subtract shares/money if enough
       if (orderRequest.getAmount() < 0) { // sell order, check shares, subtract shares
         for (Position p : account.getPositions()) {
@@ -211,21 +215,25 @@ public class Service {
     // split order if needed
     double fulfilledAmount;
     if (buyOrder.getAmount() > sellOrder.getAmount() * -1){
-      splitExecuteOrder(buyOrder, sellOrder.getAmount() * -1, session);
+      splitExecuteOrder(buyOrder, sellOrder.getAmount(), executionPrice, session);
       sellOrder.setStatus(Order.Status.EXECUTED);
+      sellOrder.setExecutedPrice(executionPrice);
       sellOrder.setTimeToNow();
       session.update(sellOrder);
       fulfilledAmount = sellOrder.getAmount() * -1;
     } else if (buyOrder.getAmount() < sellOrder.getAmount() * -1) {
-      splitExecuteOrder(sellOrder, buyOrder.getAmount(), session);
+      splitExecuteOrder(sellOrder, buyOrder.getAmount(), executionPrice, session);
       buyOrder.setStatus(Order.Status.EXECUTED);
+      buyOrder.setExecutedPrice(executionPrice);
       buyOrder.setTimeToNow();
       session.update(buyOrder);
       fulfilledAmount = buyOrder.getAmount();
     } else { // change both status to executed, if no split
       buyOrder.setStatus(Order.Status.EXECUTED);
+      buyOrder.setExecutedPrice(executionPrice);
       buyOrder.setTimeToNow();
       sellOrder.setStatus(Order.Status.EXECUTED);
+      sellOrder.setExecutedPrice(executionPrice);
       sellOrder.setTimeToNow();
       session.update(buyOrder);
       session.update(sellOrder);
@@ -244,7 +252,7 @@ public class Service {
   }
 
   // must inside transaction!
-  private static void splitExecuteOrder(Order toSplit, double splitAmount, Session session){
+  private static void splitExecuteOrder(Order toSplit, double splitAmount, double executePrice, Session session){
     // child, execute
     Order splitted = new Order();
     splitted.setParentId(toSplit.getId());
@@ -253,14 +261,16 @@ public class Service {
     splitted.setAccount(toSplit.getAccount());
     splitted.setAmount(splitAmount);
     splitted.setStatus(Order.Status.EXECUTED);
+    splitted.setExecutedPrice(executePrice);
     session.save(splitted);
 
     // parent, remain open. splitAmount is always positive adjustment
-    if (toSplit.getAmount() > 0) {
-      toSplit.setAmount(toSplit.getAmount() - splitAmount);
-    } else {
-      toSplit.setAmount(toSplit.getAmount() + splitAmount);
-    }
+    toSplit.setAmount(toSplit.getAmount() - splitAmount);
+//    if (toSplit.getAmount() > 0) {
+//      toSplit.setAmount(toSplit.getAmount() - splitAmount);
+//    } else {
+//      toSplit.setAmount(toSplit.getAmount() + splitAmount);
+//    }
 
     session.update(toSplit);
   }
@@ -358,7 +368,7 @@ public class Service {
           subResult = new Executed();
           subResult.addAttribute("shares", String.valueOf(order.getAmount()));
           subResult.addAttribute("time", String.valueOf(order.getTime()));
-          subResult.addAttribute("price", String.valueOf(order.getLimitPrice())); // actual executed price?
+          subResult.addAttribute("price", String.valueOf(order.getExecutedPrice())); // actual executed price?
         }
         subResults.add(subResult);
       }
@@ -420,7 +430,7 @@ public class Service {
       for (Order order : executedOrders) {
         SubResult subResult = new Executed();
         subResult.addAttribute("shares", String.valueOf(order.getAmount()));
-        subResult.addAttribute("price", String.valueOf(order.getLimitPrice())); // actual executed price?
+        subResult.addAttribute("price", String.valueOf(order.getExecutedPrice())); // actual executed price?
         subResult.addAttribute("time", String.valueOf(order.getTime()));
         subResults.add(subResult);
       }
