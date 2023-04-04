@@ -163,51 +163,68 @@ public class Service {
 
 
   // earliest, closest to limit, same symbol, not by same account
-  public static void executeMatching(Order newOrder) {
+  public static void executeMatching(Order newOrder) throws RequestException{
     Session session = SessionFactoryWrapper.openSession();
 
     try (session) {
-      List<Order> orders = filterCompatibleList(newOrder, session);
-      Order match = findBestMatchInList(newOrder, orders);
+      Transaction tx = session.beginTransaction();
 
-      // Execute matching
-      // split order if needed
-      double fulfilledAmount;
-      if (match.getAmount() > newOrder.getAmount()){
-        splitExecuteOrder(match, newOrder.getAmount(), session);
-        newOrder.setStatus(Order.Status.EXECUTED);
-        fulfilledAmount = newOrder.getAmount();
-      } else if (match.getAmount() < newOrder.getAmount()) {
-        splitExecuteOrder(newOrder, match.getAmount(), session);
-        match.setStatus(Order.Status.EXECUTED);
-        fulfilledAmount = match.getAmount();
-      } else { // change both status to executed, if no split
-        match.setStatus(Order.Status.EXECUTED);
-        newOrder.setStatus(Order.Status.EXECUTED);
-        fulfilledAmount = match.getAmount();
+      List<Order> orders;
+      do {
+        orders = filterCompatibleList(newOrder, session);
+        Order match = findBestMatchInList(newOrder, orders);
+        executeOneToOne(newOrder, match, session);
       }
+      while (newOrder.getStatus() == Order.Status.OPEN && orders.size() != 0);
+      // will stop if all executed, or if no other match could be found
 
-      // find seller and buyer
-      Account seller;
-      Account buyer;
-      if (match.getLimitPrice() < 0 ) { // match is seller, newOrder is buyer
-        seller = match.getAccount();
-        buyer = newOrder.getAccount();
-      } else {
-        seller = newOrder.getAccount();
-        buyer = newOrder.getAccount();
-      }
-
-      // adding money to seller account
-      seller.setBalance(seller.getBalance() + fulfilledAmount * match.getLimitPrice());
-      // new position / add share to buyer account
-
-
+      tx.commit();
     }
   }
 
+  // must be called within a transaction
+  private static void executeOneToOne(Order newOrder, Order match, Session session) throws RequestException{
+    // Execute matching
+    // split order if needed
+    double fulfilledAmount;
+    if (match.getAmount() > newOrder.getAmount()){
+      splitExecuteOrder(match, newOrder.getAmount(), session);
+      newOrder.setStatus(Order.Status.EXECUTED);
+      session.save(newOrder);
+      fulfilledAmount = newOrder.getAmount();
+    } else if (match.getAmount() < newOrder.getAmount()) {
+      splitExecuteOrder(newOrder, match.getAmount(), session);
+      match.setStatus(Order.Status.EXECUTED);
+      session.save(match);
+      fulfilledAmount = match.getAmount();
+    } else { // change both status to executed, if no split
+      match.setStatus(Order.Status.EXECUTED);
+      newOrder.setStatus(Order.Status.EXECUTED);
+      session.save(match);
+      session.save(newOrder);
+      fulfilledAmount = match.getAmount();
+    }
+
+    // find seller and buyer
+    Account seller;
+    Account buyer;
+    if (match.getLimitPrice() < 0 ) { // match is seller, newOrder is buyer
+      seller = match.getAccount();
+      buyer = newOrder.getAccount();
+    } else { // match is buyer, newOrder is seller
+      seller = newOrder.getAccount();
+      buyer = match.getAccount();
+    }
+
+    // adding money to seller account
+    seller.setBalance(seller.getBalance() + fulfilledAmount * match.getLimitPrice());
+    session.save(seller);
+    // new position / add share to buyer account
+    addPosition(match.getSymbol(), fulfilledAmount, buyer.getId(), session);
+  }
+
+  // must inside transaction!
   private static void splitExecuteOrder(Order toSplit, double splitAmount, Session session){
-    Transaction tx = session.beginTransaction();
     // child, execute
     Order splitted = new Order();
     splitted.setParentId(toSplit.getId());
@@ -216,10 +233,11 @@ public class Service {
     splitted.setAccount(toSplit.getAccount());
     splitted.setAmount(splitAmount);
     splitted.setStatus(Order.Status.EXECUTED);
+    session.save(splitted);
 
     // parent, remain open
     toSplit.setAmount(toSplit.getAmount() - splitAmount);
-    tx.commit();
+    session.save(toSplit);
   }
 
   private static Order findBestMatchInList(Order newOrder, List<Order> orders) {
@@ -248,8 +266,9 @@ public class Service {
     return bestMatch;
   }
 
+  // must inside a transaction
   private static List<Order> filterCompatibleList(Order newOrder, Session session) {
-    Transaction tx = session.beginTransaction();
+
     // same symbol, smaller amount, higher price, not by same account
     Criteria criteria = session.createCriteria(Order.class);
     criteria.add(Restrictions.eq("symbol", newOrder.getSymbol()));
@@ -265,7 +284,7 @@ public class Service {
     }
 
     List<Order> orders = criteria.list();
-    tx.commit();
+
     return orders;
   }
 
