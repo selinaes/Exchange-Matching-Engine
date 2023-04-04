@@ -43,6 +43,7 @@ public class Result {
       document.appendChild(root);
 
       for (SubResult subResult : subResults) {
+        System.out.println(subResult);
         root.appendChild(subResult.toXML(document));
       }
 

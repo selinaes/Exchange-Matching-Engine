@@ -46,59 +46,63 @@ public class Service {
       if (account == null) {
         throw new RequestException("Account does not exist");
       }
-      addPosition(createSymbol.getName(), createSymbol.getAmount(), createSymbol.getAccountId());
-      session.save(account);
+      addPosition(createSymbol.getName(), createSymbol.getAmount(), createSymbol.getAccountId(), session);
       tx.commit();
       return account;
     }
   }
 
-  public static Position addPosition(String sym, double amount, String accountId) throws RequestException {
-    Session session = SessionFactoryWrapper.openSession();
-    try (session) {
-      Transaction tx = session.beginTransaction();
-      Account account = getAccountById(accountId);
-      if (account == null) {
-        throw new RequestException("Account does not exist");
-      }
-      for (Position p : account.getPositions()) {
-        if (p.getSymbol().equals(sym)) {
-          p.setQuantity(p.getQuantity() + amount);
-          session.save(account);
-          tx.commit();
-          return p;
-        }
-      }
-      Position p = new Position();
-      createSymbol(sym, session);
-      p.setSymbol(sym);
-      p.setQuantity(amount);
-      p.setAccount(account);
-
-      session.save(account);
-      tx.commit();
-      return p;
+  // must be called within a transaction
+  private static Position addPosition(String sym, double amount, String accountId, Session session) throws RequestException {
+    Account account = session.get(Account.class, accountId);
+    if (account == null) {
+      throw new RequestException("Account does not exist");
     }
-  }
-
-  private static Symbol createSymbol(String sym, Session session) {
-    Transaction tx = session.beginTransaction();
-    Symbol symbol = new Symbol();
-    symbol.setSymbol(sym);
-    session.save(symbol);
-    tx.commit();
-    return symbol;
-  }
-
-
-  private static Account getAccountById(String id) {
-    try (Session session = SessionFactoryWrapper.openSession()) {
-      Transaction tx = session.beginTransaction();
-      Account account = session.get(Account.class, id);
-      tx.commit();
-      return account;
+    for (Position p : account.getPositions()) {
+      if (p.getSymbol().equals(sym)) {
+        p.setQuantity(p.getQuantity() + amount);
+        session.save(p);
+        session.save(account);
+        return p;
+      }
     }
+    // create symbol
+    Symbol symbol = session.get(Symbol.class, sym);
+    if (symbol == null) {
+      symbol = new Symbol();
+      symbol.setSymbol(sym);
+      session.save(symbol);
+    }
+    // create position
+    Position position = new Position();
+    position.setSymbol(sym);
+    position.setQuantity(amount);
+    position.setAccount(account);
+    session.save(position);
+
+    session.save(account);
+    return position;
+
   }
+
+//  private static Symbol createSymbol(String sym, Session session) {
+//    Transaction tx = session.beginTransaction();
+//    Symbol symbol = new Symbol();
+//    symbol.setSymbol(sym);
+//    session.save(symbol);
+//    tx.commit();
+//    return symbol;
+//  }
+
+
+//  private static Account getAccountById(String id) {
+////    try (Session session = SessionFactoryWrapper.openSession()) {
+////      Transaction tx = session.beginTransaction();
+//      Account account = session.get(Account.class, id);
+//      tx.commit();
+//      return account;
+//    }
+//  }
 
 
   public static Order createOrder(OrderRequest orderRequest) throws RequestException {
@@ -124,19 +128,20 @@ public class Service {
       if (orderRequest.getLimit() < 0) { // sell order, check shares, subtract shares
         for (Position p : account.getPositions()) {
           if (p.getSymbol().equals(sym)) {
-            if (p.getQuantity() < orderRequest.getAmount()){
+            if (p.getQuantity() < orderRequest.getAmount()) {
               throw new RequestException("You don't have enough shares for this sell order");
             } else {
-              p.setQuantity(p.getQuantity() - orderRequest.getAmount() );
+              p.setQuantity(p.getQuantity() - orderRequest.getAmount());
             }
             session.save(p);
           }
         }
       } else { // buy order, check money, subtract money
-        if (account.getBalance() < orderRequest.getLimit() * orderRequest.getAmount()){
+        if (account.getBalance() < orderRequest.getLimit() * orderRequest.getAmount()) {
           throw new RequestException("You don't have enough money for this buy order");
         } else {
-          account.setBalance(account.getBalance() - orderRequest.getLimit() * orderRequest.getAmount());
+          account.setBalance(
+                  account.getBalance() - orderRequest.getLimit() * orderRequest.getAmount());
           session.save(account);
         }
       }

@@ -78,6 +78,7 @@ public class Server {
     } catch (IOException e) {
       System.out.println("IOException");
     } catch (SAXException e) {
+      e.printStackTrace();
       System.out.println("SAXException");
     }
 
