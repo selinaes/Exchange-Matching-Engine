@@ -39,11 +39,11 @@ public class Status extends AbstractSubResult {
   public Element toXML(Document document) {
 
     Element root = document.createElement("status");
-    document.appendChild(root);
+//    document.appendChild(root);
     for (SubResult subResult : subResults) {
       root.appendChild(subResult.toXML(document));
     }
 
-    return null;
+    return root;
   }
 }

@@ -160,11 +160,15 @@ public class Service {
       newOrder.setLimitPrice(orderRequest.getLimit());
       newOrder.setSymbol(orderRequest.getSymbol());
       newOrder.setAccount(account);
-      newOrder.setParentId(newOrder.getId()); // set parent to self
-
+       // set parent to self
+//      System.out.println("new order id: " + newOrder.getId());
       session.save(newOrder);
+      newOrder.setParentId(newOrder.getId());
+      session.save(newOrder);
+//      System.out.println("new order id after save: " + newOrder.getId());
       session.save(account);
       tx.commit();
+//      System.out.println("new order id after commit: " + newOrder.getId());
       return newOrder;
     }
   }
