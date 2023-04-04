@@ -340,6 +340,7 @@ public class Service {
       );
 
       List<Order> orders = session.createQuery(query).getResultList();
+      System.out.println("childOrders: " + orders);
       for (Order order : orders) {
         SubResult subResult;
         if (order.getStatus() == Order.Status.OPEN) {
