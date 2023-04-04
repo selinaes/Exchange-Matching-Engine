@@ -87,6 +87,15 @@ public class TestCreate {
     client5.start();
     client6.start();
     client7.start();
+
+    server.join();
+    client1.join();
+    client2.join();
+    client3.join();
+    client4.join();
+    client5.join();
+    client6.join();
+    client7.join();
   }
 
   @Test
@@ -154,5 +163,13 @@ public class TestCreate {
 //    trans4();
 //    trans5();
 //    trans6();
+  }
+
+  @Test
+  public void query7() {
+    UserController client = new UserController();
+    client.startConnection("localhost", 12345);
+    client.sendFile("src/main/java/org/example/query7.txt");
+    client.stopConnection();
   }
 }
