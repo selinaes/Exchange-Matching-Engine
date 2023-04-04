@@ -325,7 +325,7 @@ public class Service {
       if (parentOrder == null) { // if orderId not valid, error
         tx.rollback();
         throw new RequestException("Transaction ID not valid");
-      } else if (!parentOrder.getAccount().getId().equals(queryRequest.getTransactionId())) {
+      } else if (!parentOrder.getAccount().getId().equals(queryRequest.getAccountId())) {
         // verify that the account belong to querying account, otherwise error
         tx.rollback();
         throw new RequestException("This transaction does not belong to your account");
