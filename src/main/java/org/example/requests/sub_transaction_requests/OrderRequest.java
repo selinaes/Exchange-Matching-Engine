@@ -59,6 +59,8 @@ public class OrderRequest implements SubTransactionRequest{
     try {
       // create a new order, subtract corresponding shares or cash
       newOrder = Service.createOrder(this);
+      // get bestMatch order & execute matching till no other match
+      Service.executeMatching(newOrder);
     }
     catch (RequestException e){
       SubResult error = new ErrorResult(e.getMessage());
@@ -68,22 +70,13 @@ public class OrderRequest implements SubTransactionRequest{
       return error;
     }
 
-    // get bestMatch order
-    Order bestMatch = Service.getMatchingOrder(this);
-    System.out.println("bestMatch: " + bestMatch);
-    // if there is a match, execute a match
-    if (bestMatch != null) {
-      // execute both the new order and the matched order, using the matched order's price, atomically
-    } else {
-      // <opened> result
+      // return <opened> result
       SubResult result = new Opened();
       result.addAttribute("sym", this.symbol);
       result.addAttribute("amount", String.valueOf(this.amount));
       result.addAttribute("limit", String.valueOf(this.limit));
       result.addAttribute("id", newOrder.getId());
       return result;
-    }
-    return null;
   }
 
   @Override

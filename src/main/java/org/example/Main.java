@@ -9,7 +9,7 @@ public class Main {
   public static void main(String[] args) {
     try {
       Server server = new Server(12345);
-      Session session = SessionFactoryWrapper.openSession();
+//      Session session = SessionFactoryWrapper.openSession();
 //      Account account = new Account();
 //      session.beginTransaction();
 //      account.setId("1234");

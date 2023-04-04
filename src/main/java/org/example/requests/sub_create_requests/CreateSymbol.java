@@ -48,13 +48,13 @@ public class CreateSymbol implements SubCreateRequest {
       SubResult created = new Created();
       created.addAttribute("sym", this.getName());
       created.addAttribute("id", this.getAccountId());
+      return created;
     } catch (RequestException e) {
       SubResult error = new ErrorResult(e.getMessage());
       error.addAttribute("sym", this.getName());
       error.addAttribute("id", this.getAccountId());
       return error;
     }
-    return null;
   }
 
   @Override

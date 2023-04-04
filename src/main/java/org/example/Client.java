@@ -44,6 +44,7 @@ public class Client {
     boolean finished = false;
     while (!finished) {
       int c = this.dataInputStream.read();
+      System.out.println("c is" + c);
       if (c == '\n') {
         finished = true;
       } else if (Character.isDigit(c)) {
