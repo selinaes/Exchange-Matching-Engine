@@ -65,7 +65,7 @@ public class TransactionRequest implements Request {
       SubResult subResult = subTransactionRequest.execute();
       result.addSubResult(subResult);
     }
-    return new Result();
+    return result;
   }
 
   @Override

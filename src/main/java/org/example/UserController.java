@@ -27,19 +27,9 @@ public class UserController {
     try {
       BufferedReader reader = new BufferedReader(new FileReader(path));
       String line;
-      String ls = System.getProperty("line.separator");
-//      out.write("173");
-//      out.write(ls);
       System.out.println("Sending file");
       while ((line = reader.readLine()) != null) {
-//        System.out.println(line);
-//        stringBuilder.append(line);
-//        stringBuilder.append(ls);
         out.println(line);
-//        out.println(ls);
-//        out.write(line);
-//        out.write(ls);
-//        System.out.println(out);
       }
     } catch (FileNotFoundException e) {
       throw new RuntimeException(e);
@@ -85,6 +75,8 @@ public class UserController {
 //    System.out.println("Connected");
 //    client.sendMessage("173");
 //    System.out.println("Connected");
+
+//    client.sendFile("src/main/java/org/example/input.txt");
     client.sendFile("src/main/java/org/example/input2.txt");
 //    System.out.println(response);
 //    client.recMsg();
