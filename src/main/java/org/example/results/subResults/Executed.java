@@ -18,6 +18,6 @@ public class Executed extends AbstractSubResult {
 
   @Override
   public String toString() {
-    return "Exected{" + super.toString() + "}";
+    return "Executed{" + super.toString() + "}";
   }
 }
