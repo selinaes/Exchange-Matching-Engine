@@ -42,7 +42,7 @@ public class Parser {
     switch (type) {
       case "create":
         return new CreateRequest(element);
-      case "transaction":
+      case "transactions":
         return new TransactionRequest(element);
       default:
         throw new IllegalArgumentException("Invalid request");
