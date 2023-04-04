@@ -72,15 +72,10 @@ public class UserController {
   public static void main(String[] args) {
     UserController client = new UserController();
     client.startConnection("localhost", 12345);
-//    System.out.println("Connected");
-//    client.sendMessage("173");
-//    System.out.println("Connected");
 
-//    client.sendFile("src/main/java/org/example/input.txt");
-    client.sendFile("src/main/java/org/example/input2.txt");
-//    System.out.println(response);
-//    client.recMsg();
-
+//    client.sendFile("src/main/java/org/example/create7.txt");
+//    client.sendFile("src/main/java/org/example/transactions7.txt");
+    client.sendFile("src/main/java/org/example/query7.txt");
 
     client.stopConnection();
   }

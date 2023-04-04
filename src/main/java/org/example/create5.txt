@@ -1,0 +1,8 @@
+200
+<?xml version="1.0" encoding="UTF-8"?>
+<create>
+ <account id="5" balance="60000"/>
+ <symbol sym="SPY">
+ <account id="5">300</account>
+ </symbol>
+</create>
