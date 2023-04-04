@@ -37,14 +37,14 @@ public class CancelRequest implements SubTransactionRequest {
   public SubResult execute() {
     try {
       List<SubResult> subResults = Service.cancelOrder(this);
-      Canceled canceledResult = new Canceled(subResults);
+      SubResult canceledResult = new Canceled(subResults);
       canceledResult.addAttribute("id", this.getOrderId());
+      return canceledResult;
     } catch (RequestException e) {
-      ErrorResult error = new ErrorResult(e.getMessage());
+      SubResult error = new ErrorResult(e.getMessage());
       error.addAttribute("id", this.getOrderId());
       return error;
     }
-    return null;
   }
 
   @Override

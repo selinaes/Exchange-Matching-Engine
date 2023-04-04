@@ -8,8 +8,10 @@ import org.example.requests.sub_create_requests.CreateAccount;
 import org.example.requests.sub_create_requests.CreateSymbol;
 import org.example.requests.sub_transaction_requests.CancelRequest;
 import org.example.requests.sub_transaction_requests.OrderRequest;
+import org.example.requests.sub_transaction_requests.QueryRequest;
 import org.example.results.subResults.Canceled;
 import org.example.results.subResults.Executed;
+import org.example.results.subResults.Open;
 import org.example.results.subResults.SubResult;
 import org.hibernate.Session;
 import org.hibernate.Criteria;
@@ -310,6 +312,54 @@ public class Service {
     }
 
     return session.createQuery(query).getResultList();
+  }
+
+
+  public static List<SubResult> queryOrder(QueryRequest queryRequest) throws RequestException {
+    Session session = SessionFactoryWrapper.openSession();
+    List<SubResult> subResults = new ArrayList<>();
+    try (session) {
+      Transaction tx = session.beginTransaction();
+
+      Order parentOrder = session.get(Order.class, queryRequest.getTransactionId());
+      if (parentOrder == null) { // if orderId not valid, error
+        tx.rollback();
+        throw new RequestException("Transaction ID not valid");
+      } else if (!parentOrder.getAccount().getId().equals(queryRequest.getTransactionId())) {
+        // verify that the account belong to querying account, otherwise error
+        tx.rollback();
+        throw new RequestException("This transaction does not belong to your account");
+      }
+
+      // find orders with matching id (order's parentId match request's transactionId)
+      CriteriaBuilder builder= session.getCriteriaBuilder();
+      CriteriaQuery<Order> query = builder.createQuery(Order.class);
+      Root<Order> root = query.from(Order.class);
+      query.where(
+              builder.equal(root.get("parentId"), parentOrder.getId())
+      );
+
+      List<Order> orders = session.createQuery(query).getResultList();
+      for (Order order : orders) {
+        SubResult subResult;
+        if (order.getStatus() == Order.Status.OPEN) {
+          subResult = new Open();
+          subResult.addAttribute("shares", String.valueOf(order.getAmount()));
+        } else if (order.getStatus() == Order.Status.CANCELLED) {
+          subResult = new Canceled();
+          subResult.addAttribute("shares", String.valueOf(order.getAmount()));
+          subResult.addAttribute("time", String.valueOf(order.getTime()));
+        } else {
+          subResult = new Executed();
+          subResult.addAttribute("shares", String.valueOf(order.getAmount()));
+          subResult.addAttribute("time", String.valueOf(order.getTime()));
+          subResult.addAttribute("price", String.valueOf(order.getLimitPrice())); // actual executed price?
+        }
+        subResults.add(subResult);
+      }
+      tx.commit();
+    }
+    return subResults;
   }
 
 
