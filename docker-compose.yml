@@ -10,15 +10,15 @@ services:
     volumes:
       - data-volume:/var/lib/postgresql/data
   backend:
-    build: ./stock-exchange-application
+    build: .
 #    command: /code/initserver.sh
 #    volumes:
-#      - ./web-app:/code
+#      - ./:/app
     ports:
       - "12345:12345"
     depends_on:
       - db
 
 #
-#volumes:
-#  data-volume:
+volumes:
+  data-volume:

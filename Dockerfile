@@ -12,6 +12,7 @@ EXPOSE 12345
 RUN mkdir /app
 
 
-COPY --from=build /home/gradle/src/build/libs/*.jar /app/stock-exchange-application.jar
+COPY --from=build /home/gradle/src/build/libs/*.jar /app/
 
-ENTRYPOINT ["java", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseCGroupMemoryLimitForHeap", "-Djava.security.egd=file:/dev/./urandom","-jar","/app/stock-exchange-application.jar"]
+ENTRYPOINT ["java","-XX:+UseContainerSupport", "-Djava.security.egd=file:/dev/./urandom","-jar","/app/stock-exchange-application-1.0.jar"]
+#EXPOSE 12345:12345

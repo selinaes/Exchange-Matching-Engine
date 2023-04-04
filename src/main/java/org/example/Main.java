@@ -1,7 +1,5 @@
 package org.example;
 
-import org.example.models.Account;
-import org.hibernate.Session;
 
 import java.io.IOException;
 
