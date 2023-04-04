@@ -3,6 +3,7 @@ package org.example.models;
 import java.util.ArrayList;
 import java.util.List;
 import java.time.Instant;
+import java.util.Objects;
 
 import javax.persistence.*;
 
@@ -124,5 +125,19 @@ public class Order {
            + symbol + ", status=" + status + ", account=" + account + "]";
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Order order = (Order) o;
+    return Double.compare(order.amount, amount) == 0
+           && Double.compare(order.limitPrice, limitPrice) == 0 && time == order.time
+           && id.equals(order.id) && parentId.equals(order.parentId) && symbol.equals(order.symbol)
+           && status == order.status && account.equals(order.account);
+  }
 
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, parentId, amount, limitPrice, symbol, time, status, account);
+  }
 }

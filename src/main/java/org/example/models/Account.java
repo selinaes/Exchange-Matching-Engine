@@ -2,6 +2,7 @@ package org.example.models;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.persistence.*;
 
@@ -89,4 +90,17 @@ public class Account {
     return "Account [balance=" + balance + ", id=" + id + ", positions=" + positions + "]";
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Account account = (Account) o;
+    return Double.compare(account.balance, balance) == 0 && id.equals(account.id)
+           && positions.equals(account.positions) && orders.equals(account.orders);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, balance, positions, orders);
+  }
 }
