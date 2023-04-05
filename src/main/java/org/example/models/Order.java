@@ -140,13 +140,14 @@ public class Order {
     if (o == null || getClass() != o.getClass()) return false;
     Order order = (Order) o;
     return Double.compare(order.amount, amount) == 0
-           && Double.compare(order.limitPrice, limitPrice) == 0 && time == order.time
+           && Double.compare(order.limitPrice, limitPrice) == 0
+           && Double.compare(order.executedPrice, executedPrice) == 0 && time == order.time
            && id.equals(order.id) && parentId.equals(order.parentId) && symbol.equals(order.symbol)
            && status == order.status && account.equals(order.account);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, parentId, amount, limitPrice, symbol, time, status, account);
+    return Objects.hash(id, parentId, amount, limitPrice, executedPrice, symbol, time, status, account);
   }
 }

@@ -15,6 +15,7 @@ import org.example.results.subResults.Open;
 import org.example.results.subResults.SubResult;
 import org.hibernate.Session;
 import org.hibernate.Criteria;
+
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
@@ -44,6 +45,7 @@ public class Service {
     }
   }
 
+  // add position to account
   public static Account createSymbol(CreateSymbol createSymbol) throws RequestException {
     Session session = SessionFactoryWrapper.openSession();
     try (session) {
@@ -164,7 +166,7 @@ public class Service {
       newOrder.setLimitPrice(orderRequest.getLimit());
       newOrder.setSymbol(orderRequest.getSymbol());
       newOrder.setAccount(account);
-       // set parent to self
+      // set parent to self
 //      System.out.println("new order id: " + newOrder.getId());
       session.save(newOrder);
       newOrder.setParentId(newOrder.getId());
@@ -179,7 +181,7 @@ public class Service {
 
 
   // earliest, closest to limit, same symbol, not by same account
-  public static void executeMatching(Order newOrder) throws RequestException{
+  public static void executeMatching(Order newOrder) throws RequestException {
     Session session = SessionFactoryWrapper.openSession();
 
     try (session) {
@@ -188,6 +190,8 @@ public class Service {
       List<Order> orders;
       do {
         orders = filterCompatibleList(newOrder, session);
+        System.out.println("size: " + orders.size());
+        System.out.println("tttttt" + orders);
         if (orders.size() == 0) {
           break;
         }
@@ -198,7 +202,7 @@ public class Service {
           executeBuyToSell(match, newOrder, session);
         }
       }
-      while (newOrder.getStatus() == Order.Status.OPEN && orders.size() != 0);
+      while (newOrder.getStatus().equals(Order.Status.OPEN) && orders.size() != 0);
       // will stop if all executed, or if no other match could be found
 
       tx.commit();
@@ -206,7 +210,7 @@ public class Service {
   }
 
   // must be called within a transaction
-  private static void executeBuyToSell(Order buyOrder, Order sellOrder, Session session) throws RequestException{
+  private static void executeBuyToSell(Order buyOrder, Order sellOrder, Session session) throws RequestException {
     // Execute matching
     // find execution price, which is the earlier one
     double executionPrice = sellOrder.getTime() < buyOrder.getTime() ?
@@ -214,7 +218,10 @@ public class Service {
 
     // split order if needed
     double fulfilledAmount;
-    if (buyOrder.getAmount() > sellOrder.getAmount() * -1){
+    if (buyOrder.getAmount() > sellOrder.getAmount() * -1) {
+      System.out.println("buy order amount > sell order amount");
+      System.out.println("buy order: " + buyOrder);
+      System.out.println("sell order: " + sellOrder);
       splitExecuteOrder(buyOrder, sellOrder.getAmount(), executionPrice, session);
       sellOrder.setStatus(Order.Status.EXECUTED);
       sellOrder.setExecutedPrice(executionPrice);
@@ -222,6 +229,9 @@ public class Service {
       session.update(sellOrder);
       fulfilledAmount = sellOrder.getAmount() * -1;
     } else if (buyOrder.getAmount() < sellOrder.getAmount() * -1) {
+      System.out.println("buy order amount < sell order amount");
+      System.out.println("buy order: " + buyOrder);
+      System.out.println("sell order: " + sellOrder);
       splitExecuteOrder(sellOrder, buyOrder.getAmount(), executionPrice, session);
       buyOrder.setStatus(Order.Status.EXECUTED);
       buyOrder.setExecutedPrice(executionPrice);
@@ -229,6 +239,9 @@ public class Service {
       session.update(buyOrder);
       fulfilledAmount = buyOrder.getAmount();
     } else { // change both status to executed, if no split
+      System.out.println("buy order amount = sell order amount");
+      System.out.println("buy order: " + buyOrder);
+      System.out.println("sell order: " + sellOrder);
       buyOrder.setStatus(Order.Status.EXECUTED);
       buyOrder.setExecutedPrice(executionPrice);
       buyOrder.setTimeToNow();
@@ -252,22 +265,22 @@ public class Service {
   }
 
   // must inside transaction!
-  private static void splitExecuteOrder(Order toSplit, double splitAmount, double executePrice, Session session){
+  private static void splitExecuteOrder(Order toSplit, double splitAmount, double executePrice, Session session) {
     // child, execute
     Order splitted = new Order();
     splitted.setParentId(toSplit.getId());
     splitted.setLimitPrice(toSplit.getLimitPrice());
     splitted.setSymbol(toSplit.getSymbol());
     splitted.setAccount(toSplit.getAccount());
-    splitted.setAmount(splitAmount);
+    splitted.setAmount(-splitAmount);
     splitted.setStatus(Order.Status.EXECUTED);
     splitted.setExecutedPrice(executePrice);
     session.save(splitted);
 
     // parent, remain open. splitAmount is always positive adjustment
-    toSplit.setAmount(toSplit.getAmount() - splitAmount);
+    toSplit.setAmount(toSplit.getAmount() + splitAmount);
 //    if (toSplit.getAmount() > 0) {
-//      toSplit.setAmount(toSplit.getAmount() - splitAmount);
+//      toSplit.setAmount(toSplit.getAmount() + splitAmount);
 //    } else {
 //      toSplit.setAmount(toSplit.getAmount() + splitAmount);
 //    }
@@ -279,25 +292,25 @@ public class Service {
   private static Order findBestMatchInList(Order newOrder, List<Order> orders) {
     Order bestMatch = null;
 
-      // get the best price match
-      if (newOrder.getAmount() < 0) { // sell, looking for highest buy
-        for (Order order : orders) {
-          // no bestMatch OR price higher OR same price time earlier
-          if (bestMatch == null || order.getLimitPrice() > bestMatch.getLimitPrice() ||
-                  (order.getLimitPrice() == bestMatch.getLimitPrice() &&
-                          order.getTime() < bestMatch.getTime())) {
-            bestMatch = order;
-          }
-        }
-      } else { // buy, looking for lowest sell
-        for (Order order : orders) {
-          if (bestMatch == null || order.getLimitPrice() < bestMatch.getLimitPrice() ||
-                  (order.getLimitPrice() == bestMatch.getLimitPrice() &&
-                          order.getTime() < bestMatch.getTime())) {
-            bestMatch = order;
-          }
+    // get the best price match
+    if (newOrder.getAmount() < 0) { // sell, looking for highest buy
+      for (Order order : orders) {
+        // no bestMatch OR price higher OR same price time earlier
+        if (bestMatch == null || order.getLimitPrice() > bestMatch.getLimitPrice() ||
+            (order.getLimitPrice() == bestMatch.getLimitPrice() &&
+             order.getTime() < bestMatch.getTime())) {
+          bestMatch = order;
         }
       }
+    } else { // buy, looking for lowest sell
+      for (Order order : orders) {
+        if (bestMatch == null || order.getLimitPrice() < bestMatch.getLimitPrice() ||
+            (order.getLimitPrice() == bestMatch.getLimitPrice() &&
+             order.getTime() < bestMatch.getTime())) {
+          bestMatch = order;
+        }
+      }
+    }
 
     return bestMatch;
   }
@@ -306,21 +319,27 @@ public class Service {
   private static List<Order> filterCompatibleList(Order newOrder, Session session) {
 
     // same symbol, smaller amount, higher price, not by same account
-    CriteriaBuilder builder= session.getCriteriaBuilder();
+    CriteriaBuilder builder = session.getCriteriaBuilder();
     CriteriaQuery<Order> query = builder.createQuery(Order.class);
     Root<Order> root = query.from(Order.class);
-    query.where(
-            builder.equal(root.get("symbol"), newOrder.getSymbol()),
-            builder.notEqual(root.get("account").get("id"), newOrder.getAccount().getId()),
-            builder.equal(root.get("status"), "OPEN")
-    );
+//    query = query.where(
+//            builder.equal(root.get("symbol"), newOrder.getSymbol()),
+//            builder.notEqual(root.get("account").get("id"), newOrder.getAccount().getId()),
+//            builder.equal(root.get("status"), Order.Status.OPEN)
+//    );
 
     if (newOrder.getAmount() > 0) { // buy
       query.where(
+              builder.equal(root.get("symbol"), newOrder.getSymbol()),
+              builder.notEqual(root.get("account").get("id"), newOrder.getAccount().getId()),
+              builder.equal(root.get("status"), Order.Status.OPEN),
               builder.lt(root.get("amount"), 0), // buy looking for sell, amount < 0
               builder.lessThanOrEqualTo(root.get("limitPrice"), newOrder.getLimitPrice())); // match <= newOrder price
     } else if (newOrder.getAmount() < 0) { // sell
       query.where(
+              builder.equal(root.get("symbol"), newOrder.getSymbol()),
+              builder.notEqual(root.get("account").get("id"), newOrder.getAccount().getId()),
+              builder.equal(root.get("status"), Order.Status.OPEN),
               builder.gt(root.get("amount"), 0), // sell looking for buy, amount > 0
               builder.greaterThanOrEqualTo(root.get("limitPrice"), newOrder.getLimitPrice())); // match >= newOrder price
     }
@@ -346,7 +365,7 @@ public class Service {
       }
 
       // find orders with matching id (order's parentId match request's transactionId)
-      CriteriaBuilder builder= session.getCriteriaBuilder();
+      CriteriaBuilder builder = session.getCriteriaBuilder();
       CriteriaQuery<Order> query = builder.createQuery(Order.class);
       Root<Order> root = query.from(Order.class);
       query.where(
