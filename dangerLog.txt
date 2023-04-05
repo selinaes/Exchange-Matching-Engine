@@ -1,0 +1,8 @@
+1. The difference between session.save() and session.update(). If we save when supposed to update, there would be a
+duplicate key error.
+
+2. We used 'Hibernate' to map data tables to Java classes, and used interface like'CriteriaBuilder' to query from
+database. The 'CriteriaBuilder' and 'CriteriaQuery' interfaces are quite new, and is only changed after Hibernate
+5.3+. So at first we used criteriaBuilder.where() two times to query, but only the second sets of predicates worked.
+Finally, we tried using only one criteriaBuilder.where() and it worked. Even though we repeated some code, we know
+know that .where() will replace earlier predicates.
