@@ -32,23 +32,30 @@ public class Account {
   @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
   private List<Order> orders;
 
+
+//  @Version
+  private Long version;
+
+
   public Account() {
     this.positions = new ArrayList<>();
     this.orders = new ArrayList<>();
   }
 
-  public Account(double balance) {
-    this.balance = balance;
-    this.positions = new ArrayList<>();
-    this.orders = new ArrayList<>();
+  public List<Order> getOrders() {
+    return orders;
   }
 
-  public Account(double balance, String accountId) {
-    this.balance = balance;
-    this.id = accountId;
-    this.positions = new ArrayList<>();
-    this.orders = new ArrayList<>();
+  public void setOrders(List<Order> orders) {
+    this.orders = orders;
+  }
 
+  public Long getVersion() {
+    return version;
+  }
+
+  public void setVersion(Long version) {
+    this.version = version;
   }
 
 
@@ -95,12 +102,15 @@ public class Account {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     Account account = (Account) o;
-    return Double.compare(account.balance, balance) == 0 && id.equals(account.id)
-           && positions.equals(account.positions) && orders.equals(account.orders);
+    return Double.compare(account.balance, balance) == 0
+           && Objects.equals(id, account.id)
+           && Objects.equals(positions, account.positions)
+           && Objects.equals(orders, account.orders)
+           && Objects.equals(version, account.version);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, balance, positions, orders);
+    return Objects.hash(id, balance, positions, orders, version);
   }
 }

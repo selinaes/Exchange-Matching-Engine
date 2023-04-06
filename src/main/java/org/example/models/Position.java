@@ -27,6 +27,18 @@ public class Position {
   @NotNull
   private Account account;
 
+
+//  @Version
+  private Long version;
+
+  public Long getVersion() {
+    return version;
+  }
+
+  public void setVersion(Long version) {
+    this.version = version;
+  }
+
   public Position() {
   }
 
@@ -76,12 +88,15 @@ public class Position {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     Position position = (Position) o;
-    return Double.compare(position.quantity, quantity) == 0 && id.equals(position.id)
-           && symbol.equals(position.symbol) && account.equals(position.account);
+    return Double.compare(position.quantity, quantity) == 0
+           && Objects.equals(id, position.id)
+           && Objects.equals(symbol, position.symbol)
+           && Objects.equals(account, position.account)
+           && Objects.equals(version, position.version);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, symbol, quantity, account);
+    return Objects.hash(id, symbol, quantity, account, version);
   }
 }

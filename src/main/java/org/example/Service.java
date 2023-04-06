@@ -221,7 +221,7 @@ public class Service {
     Lock lock = SessionFactoryWrapper.getLock("order");
     lock.lock();
     try (session) {
-      session.doWork(connection -> connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE));
+//      session.doWork(connection -> connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE));
       Transaction tx = session.beginTransaction();
 
       List<Order> orders;
@@ -255,53 +255,58 @@ public class Service {
     // find execution price, which is the earlier one
     double executionPrice = sellOrder.getTime() < buyOrder.getTime() ?
             sellOrder.getLimitPrice() : buyOrder.getLimitPrice();
-
-    // split order if needed
-    double fulfilledAmount;
-    if (buyOrder.getAmount() > sellOrder.getAmount() * -1) {
+    Lock lock = SessionFactoryWrapper.getLock("account");
+    lock.lock();
+    try {
+      // split order if needed
+      double fulfilledAmount;
+      if (buyOrder.getAmount() > sellOrder.getAmount() * -1) {
 //      System.out.println("buy order amount > sell order amount");
 //      System.out.println("buy order: " + buyOrder);
 //      System.out.println("sell order: " + sellOrder);
-      splitExecuteOrder(buyOrder, sellOrder.getAmount(), executionPrice, session);
-      sellOrder.setStatus(Order.Status.EXECUTED);
-      sellOrder.setExecutedPrice(executionPrice);
-      sellOrder.setTimeToNow();
-      session.update(sellOrder);
-      fulfilledAmount = sellOrder.getAmount() * -1;
-    } else if (buyOrder.getAmount() < sellOrder.getAmount() * -1) {
+        splitExecuteOrder(buyOrder, sellOrder.getAmount(), executionPrice, session);
+        sellOrder.setStatus(Order.Status.EXECUTED);
+        sellOrder.setExecutedPrice(executionPrice);
+        sellOrder.setTimeToNow();
+        session.update(sellOrder);
+        fulfilledAmount = sellOrder.getAmount() * -1;
+      } else if (buyOrder.getAmount() < sellOrder.getAmount() * -1) {
 //      System.out.println("buy order amount < sell order amount");
 //      System.out.println("buy order: " + buyOrder);
 //      System.out.println("sell order: " + sellOrder);
-      splitExecuteOrder(sellOrder, buyOrder.getAmount(), executionPrice, session);
-      buyOrder.setStatus(Order.Status.EXECUTED);
-      buyOrder.setExecutedPrice(executionPrice);
-      buyOrder.setTimeToNow();
-      session.update(buyOrder);
-      fulfilledAmount = buyOrder.getAmount();
-    } else { // change both status to executed, if no split
+        splitExecuteOrder(sellOrder, buyOrder.getAmount(), executionPrice, session);
+        buyOrder.setStatus(Order.Status.EXECUTED);
+        buyOrder.setExecutedPrice(executionPrice);
+        buyOrder.setTimeToNow();
+        session.update(buyOrder);
+        fulfilledAmount = buyOrder.getAmount();
+      } else { // change both status to executed, if no split
 //      System.out.println("buy order amount = sell order amount");
 //      System.out.println("buy order: " + buyOrder);
 //      System.out.println("sell order: " + sellOrder);
-      buyOrder.setStatus(Order.Status.EXECUTED);
-      buyOrder.setExecutedPrice(executionPrice);
-      buyOrder.setTimeToNow();
-      sellOrder.setStatus(Order.Status.EXECUTED);
-      sellOrder.setExecutedPrice(executionPrice);
-      sellOrder.setTimeToNow();
-      session.update(buyOrder);
-      session.update(sellOrder);
-      fulfilledAmount = buyOrder.getAmount();
+        buyOrder.setStatus(Order.Status.EXECUTED);
+        buyOrder.setExecutedPrice(executionPrice);
+        buyOrder.setTimeToNow();
+        sellOrder.setStatus(Order.Status.EXECUTED);
+        sellOrder.setExecutedPrice(executionPrice);
+        sellOrder.setTimeToNow();
+        session.update(buyOrder);
+        session.update(sellOrder);
+        fulfilledAmount = buyOrder.getAmount();
+      }
+
+      // find seller and buyer
+      Account seller = sellOrder.getAccount();
+      Account buyer = buyOrder.getAccount();
+
+      // adding money to seller account
+      seller.setBalance(seller.getBalance() + fulfilledAmount * executionPrice);
+      session.update(seller);
+      // new position / add share to buyer account
+      addPosition(buyOrder.getSymbol(), fulfilledAmount, buyer, session);
+    } finally {
+      lock.unlock();
     }
-
-    // find seller and buyer
-    Account seller = sellOrder.getAccount();
-    Account buyer = buyOrder.getAccount();
-
-    // adding money to seller account
-    seller.setBalance(seller.getBalance() + fulfilledAmount * executionPrice);
-    session.update(seller);
-    // new position / add share to buyer account
-    addPosition(buyOrder.getSymbol(), fulfilledAmount, buyer, session);
   }
 
   // must inside transaction!

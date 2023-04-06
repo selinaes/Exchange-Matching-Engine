@@ -29,7 +29,7 @@ public class Symbol {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     Symbol symbol1 = (Symbol) o;
-    return symbol.equals(symbol1.symbol);
+    return Objects.equals(symbol, symbol1.symbol);
   }
 
   @Override

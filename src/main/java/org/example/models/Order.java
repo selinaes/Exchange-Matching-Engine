@@ -39,6 +39,17 @@ public class Order {
     OPEN, EXECUTED, CANCELLED
   }
 
+//  @Version
+  private Long version;
+
+  public Long getVersion() {
+    return version;
+  }
+
+  public void setVersion(Long version) {
+    this.version = version;
+  }
+
   public Order() {
     this.status = Status.OPEN;
     this.time = Instant.now().getEpochSecond();
@@ -93,9 +104,9 @@ public class Order {
     this.executedPrice = executedPrice;
   }
 
-    public double getExecutedPrice() {
-        return executedPrice;
-    }
+  public double getExecutedPrice() {
+    return executedPrice;
+  }
 
   public void setSymbol(String symbol) {
     this.symbol = symbol;
@@ -142,12 +153,15 @@ public class Order {
     return Double.compare(order.amount, amount) == 0
            && Double.compare(order.limitPrice, limitPrice) == 0
            && Double.compare(order.executedPrice, executedPrice) == 0 && time == order.time
-           && id.equals(order.id) && parentId.equals(order.parentId) && symbol.equals(order.symbol)
-           && status == order.status && account.equals(order.account);
+           && Objects.equals(id, order.id)
+           && Objects.equals(parentId, order.parentId)
+           && Objects.equals(symbol, order.symbol) && status == order.status
+           && Objects.equals(account, order.account)
+           && Objects.equals(version, order.version);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, parentId, amount, limitPrice, executedPrice, symbol, time, status, account);
+    return Objects.hash(id, parentId, amount, limitPrice, executedPrice, symbol, time, status, account, version);
   }
 }
