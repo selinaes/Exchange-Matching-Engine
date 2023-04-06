@@ -2,6 +2,8 @@ package org.example;
 
 import org.example.requests.Request;
 import org.example.results.Result;
+import org.example.results.subResults.ErrorResult;
+import org.example.results.subResults.SubResult;
 import org.hibernate.Session;
 import org.xml.sax.SAXException;
 
@@ -61,25 +63,31 @@ public class Server {
       int xmlLen = Integer.parseInt(length);
       System.out.println("xmlLen is " + xmlLen);
       xml = client.recvBytes(xmlLen);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-    try {
+
+
       System.out.println("Received xml: ");
       System.out.println(xml);
       Request r = Parser.parseXML(xml);
       Result response = r.execute();
 //      System.out.println(r);
       client.send(response.toXMLString());
-
-//      System.out.println(response.toXMLString());
-    } catch (ParserConfigurationException e) {
-      System.out.println("ParserConfigurationException");
     } catch (IOException e) {
-      System.out.println("IOException");
+      Result result = new Result();
+      SubResult error = new ErrorResult(e.getMessage());
+      result.addSubResult(error);
+      client.send(result.toXMLString());
+    }
+     catch (ParserConfigurationException e) {
+      Result result = new Result();
+      SubResult error = new ErrorResult("ParserConfigurationException");
+      result.addSubResult(error);
+      client.send(result.toXMLString());
     } catch (SAXException e) {
-      e.printStackTrace();
-      System.out.println("SAXException");
+      Result result = new Result();
+      SubResult error = new ErrorResult("Given XML length too short, or invalid XML");
+      result.addSubResult(error);
+      client.send(result.toXMLString());
+//      e.printStackTrace();
     }
 
 

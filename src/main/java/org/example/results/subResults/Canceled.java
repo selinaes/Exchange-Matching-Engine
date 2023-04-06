@@ -27,11 +27,17 @@ public class Canceled extends AbstractSubResult {
 
   @Override
   public Node toXML(Document document) {
-    Element element = document.createElement("canceled");
+
+    Element root = document.createElement("cancelled");
     for (Map.Entry<String, String> entry : this.getAttributes().entrySet()) {
-      element.setAttribute(entry.getKey(), entry.getValue());
+      root.setAttribute(entry.getKey(), entry.getValue());
     }
-    return element;
+//    document.appendChild(root);
+    for (SubResult subResult : subResults) {
+      root.appendChild(subResult.toXML(document));
+    }
+    return root;
+
   }
 
   @Override

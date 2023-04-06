@@ -7,6 +7,7 @@ import org.w3c.dom.Node;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -39,6 +40,9 @@ public class Status extends AbstractSubResult {
   public Element toXML(Document document) {
 
     Element root = document.createElement("status");
+    for (Map.Entry<String, String> entry : this.getAttributes().entrySet()) {
+      root.setAttribute(entry.getKey(), entry.getValue());
+    }
 //    document.appendChild(root);
     for (SubResult subResult : subResults) {
       root.appendChild(subResult.toXML(document));
