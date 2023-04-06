@@ -12,6 +12,8 @@ public class Main {
       server.run();
     } catch (IOException e) {
       System.out.println("Error starting server: " + e.getMessage());
+    } catch (Exception e) {
+      System.out.println("Error: " + e.getMessage());
     } finally {
       SessionFactoryWrapper.shutdown();
     }

@@ -9,7 +9,7 @@ public class TestCreate {
   public void create1() {
     UserController client = new UserController();
     client.startConnection("localhost", 12345);
-    client.sendFile("src/main/java/org/example/create1.txt");
+    client.sendFile("src/test/java/create1.txt");
     client.stopConnection();
 
   }
@@ -18,7 +18,7 @@ public class TestCreate {
   public void create2() {
     UserController client = new UserController();
     client.startConnection("localhost", 12345);
-    client.sendFile("src/main/java/org/example/create2.txt");
+    client.sendFile("src/test/java/create2.txt");
     client.stopConnection();
 
   }
@@ -27,7 +27,7 @@ public class TestCreate {
   public void create3() {
     UserController client = new UserController();
     client.startConnection("localhost", 12345);
-    client.sendFile("src/main/java/org/example/create3.txt");
+    client.sendFile("src/test/java/create3.txt");
     client.stopConnection();
 
   }
@@ -36,7 +36,7 @@ public class TestCreate {
   public void create4() {
     UserController client = new UserController();
     client.startConnection("localhost", 12345);
-    client.sendFile("src/main/java/org/example/create4.txt");
+    client.sendFile("src/test/java/create4.txt");
     client.stopConnection();
 
   }
@@ -45,7 +45,7 @@ public class TestCreate {
   public void create5() {
     UserController client = new UserController();
     client.startConnection("localhost", 12345);
-    client.sendFile("src/main/java/org/example/create5.txt");
+    client.sendFile("src/test/java/create5.txt");
     client.stopConnection();
 
   }
@@ -54,7 +54,7 @@ public class TestCreate {
   public void create6() {
     UserController client = new UserController();
     client.startConnection("localhost", 12345);
-    client.sendFile("src/main/java/org/example/create6.txt");
+    client.sendFile("src/test/java/create6.txt");
     client.stopConnection();
 
   }
@@ -63,7 +63,7 @@ public class TestCreate {
   public void create7() {
     UserController client = new UserController();
     client.startConnection("localhost", 12345);
-    client.sendFile("src/main/java/org/example/create7.txt");
+    client.sendFile("src/test/java/create7.txt");
     client.stopConnection();
 
   }
@@ -110,7 +110,7 @@ public class TestCreate {
   public void trans1() {
     UserController client = new UserController();
     client.startConnection("localhost", 12345);
-    client.sendFile("src/main/java/org/example/transactions1.txt");
+    client.sendFile("src/test/java/transactions1.txt");
     client.stopConnection();
   }
 
@@ -118,7 +118,7 @@ public class TestCreate {
   public void trans2() {
     UserController client = new UserController();
     client.startConnection("localhost", 12345);
-    client.sendFile("src/main/java/org/example/transactions2.txt");
+    client.sendFile("src/test/java/transactions2.txt");
     client.stopConnection();
   }
 
@@ -126,7 +126,7 @@ public class TestCreate {
   public void trans3() {
     UserController client = new UserController();
     client.startConnection("localhost", 12345);
-    client.sendFile("src/main/java/org/example/transactions3.txt");
+    client.sendFile("src/test/java/transactions3.txt");
     client.stopConnection();
   }
 
@@ -134,7 +134,7 @@ public class TestCreate {
   public void trans4() {
     UserController client = new UserController();
     client.startConnection("localhost", 12345);
-    client.sendFile("src/main/java/org/example/transactions4.txt");
+    client.sendFile("src/test/java/transactions4.txt");
     client.stopConnection();
   }
 
@@ -142,7 +142,7 @@ public class TestCreate {
   public void trans5() {
     UserController client = new UserController();
     client.startConnection("localhost", 12345);
-    client.sendFile("src/main/java/org/example/transactions5.txt");
+    client.sendFile("src/test/java/transactions5.txt");
     client.stopConnection();
   }
 
@@ -150,7 +150,7 @@ public class TestCreate {
   public void trans6() {
     UserController client = new UserController();
     client.startConnection("localhost", 12345);
-    client.sendFile("src/main/java/org/example/transactions6.txt");
+    client.sendFile("src/test/java/transactions6.txt");
     client.stopConnection();
   }
 
@@ -158,7 +158,7 @@ public class TestCreate {
   public void trans7() {
     UserController client = new UserController();
     client.startConnection("localhost", 12345);
-    client.sendFile("src/main/java/org/example/transactions7.txt");
+    client.sendFile("src/test/java/transactions7.txt");
     client.stopConnection();
   }
 
@@ -197,7 +197,7 @@ public class TestCreate {
   public void query7() {
     UserController client = new UserController();
     client.startConnection("localhost", 12345);
-    client.sendFile("src/main/java/org/example/query7.txt");
+    client.sendFile("src/test/java/query7.txt");
     client.stopConnection();
   }
 }

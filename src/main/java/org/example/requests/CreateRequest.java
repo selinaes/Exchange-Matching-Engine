@@ -19,33 +19,23 @@ public class CreateRequest implements Request {
   public CreateRequest(Element element) {
     this.subCreateRequests = new ArrayList<>();
     NodeList nList = element.getChildNodes();
-//    System.out.println(nList.getLength());
     for (int i = 0; i < nList.getLength(); i++) {
       if (nList.item(i).getNodeType() == Element.ELEMENT_NODE) {
         Element subElement = (Element) nList.item(i);
 
-//        System.out.println("main nood child: " + subElement.getNodeName());
-//        DOMImplementationLS lsImpl = (DOMImplementationLS) subElement.getOwnerDocument().getImplementation().getFeature("LS", "3.0");
-//        LSSerializer serializer = lsImpl.createLSSerializer();
-//        serializer.getDomConfig().setParameter("xml-declaration", false); //by default its true, so set it to false to get String without xml-declaration
-//        String str = serializer.writeToString(subElement);
         this.subCreateRequests.addAll(subCreateRequestsBuilder(subElement));
-
       }
     }
   }
 
 
   private List<SubCreateRequest> subCreateRequestsBuilder(Element element) {
-//    System.out.println("subCreateRequestsBuilder: " + element.getNodeName());
     List<SubCreateRequest> res = new ArrayList<>();
     String accountId;
     switch (element.getNodeName()) {
       case "account":
         accountId = element.getAttribute("id");
-//        System.out.println(accountId);
         String balance = element.getAttribute("balance");
-//        System.out.println(balance);
         res.add(new CreateAccount(accountId, Double.parseDouble(balance)));
         break;
       case "symbol":

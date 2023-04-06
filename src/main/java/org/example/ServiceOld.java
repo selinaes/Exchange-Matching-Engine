@@ -1,6 +1,5 @@
 package org.example;
 
-
 import org.example.models.Account;
 import org.example.models.Order;
 import org.example.models.Position;
@@ -14,33 +13,30 @@ import org.example.results.subResults.Canceled;
 import org.example.results.subResults.Executed;
 import org.example.results.subResults.Open;
 import org.example.results.subResults.SubResult;
-import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
-import org.hibernate.criterion.Restrictions;
-
-import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.locks.Lock;
+import org.hibernate.Criteria;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import javax.validation.constraints.NotNull;
+import javax.transaction.Transactional;
 
-//@Transactional
-public class Service {
-  //  Lock lock;
-  //  @Transactional(value = Transactional.TxType.REQUIRED)
+import org.hibernate.TransactionException;
+import org.hibernate.criterion.Restrictions;
+import org.hibernate.Transaction;
+
+import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
+
+@Transactional
+public class ServiceOld {
   public static Account createAccount(CreateAccount createAccount) throws RequestException {
     Session session = SessionFactoryWrapper.openSession();
-//    SessionFactoryWrapper.ge
-    Lock lock = SessionFactoryWrapper.getLock("account");
-    lock.lock();
-    try (session) {
-      Transaction tx = session.beginTransaction();
 
+    try (session) {
+      session.doWork(connection -> connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE));
+      Transaction tx = session.beginTransaction();
       if (session.get(Account.class, createAccount.getId()) != null) {
         throw new RequestException("Account already exists");
       }
@@ -50,28 +46,26 @@ public class Service {
       session.save(account);
       tx.commit();
       return account;
-    } finally {
-      lock.unlock();
+    } catch (TransactionException e) {
+      return createAccount(createAccount);
     }
   }
 
   // add position to account
 
   public static Account createSymbol(CreateSymbol createSymbol) throws RequestException {
+    addOrGetSymbol(createSymbol.getName());
     Session session = SessionFactoryWrapper.openSession();
-    Lock lock = SessionFactoryWrapper.getLock("symbol");
-    lock.lock();
+    session.doWork(connection -> connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE));
     try (session) {
       Transaction tx = session.beginTransaction();
       Account account = session.get(Account.class, createSymbol.getAccountId());
       if (account == null) {
         throw new RequestException("Account does not exist");
       }
-      addPosition(createSymbol.getName(), createSymbol.getAmount(), account, session);
+      addPosition(createSymbol.getName(), createSymbol.getAmount(), createSymbol.getAccountId(), session);
       tx.commit();
       return account;
-    } finally {
-      lock.unlock();
     }
 //    catch (TransactionException e) {
 //      return createSymbol(createSymbol);
@@ -80,12 +74,12 @@ public class Service {
 
   // must be called within a transaction
 
-  private static Position addPosition(String sym, double amount, @NotNull Account account, Session session) throws RequestException {
-//    Account account = session.get(Account.class, accountId);
+  private static Position addPosition(String sym, double amount, String accountId, Session session) throws RequestException {
+    Account account = session.get(Account.class, accountId);
 
-//    if (account == null) {
-//      throw new RequestException("Account does not exist");
-//    }
+    if (account == null) {
+      throw new RequestException("Account does not exist");
+    }
     for (Position p : account.getPositions()) {
       if (p.getSymbol().equals(sym)) {
         p.setQuantity(p.getQuantity() + amount);
@@ -95,36 +89,24 @@ public class Service {
       }
     }
     // create symbol
-    Symbol symbol = addOrGetSymbol(sym, session);
+//    createSymbol(sym);
     // create position
     Position position = new Position();
     position.setSymbol(sym);
     position.setQuantity(amount);
     position.setAccount(account);
-//    session.saveOrUpdate(symbol);
     session.save(position);
+
     session.save(account);
     return position;
 
   }
 
-  private static Symbol addOrGetSymbol(String sym, Session session) {
-//    this.lock.lock();
+  private static Symbol addOrGetSymbol(String sym) {
 
-    Symbol symbol = session.get(Symbol.class, sym);
-    if (symbol != null) {
-      return symbol;
-    }
-    Symbol newSymbol = new Symbol();
-    newSymbol.setSymbol(sym);
-    session.save(newSymbol);
-//    session.flush();
-    return newSymbol;
-  }
-
-  private static Symbol addSymbol(String sym) {
     Session session = SessionFactoryWrapper.openSession();
     try (session) {
+      session.doWork(connection -> connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE));
       Transaction tx = session.beginTransaction();
       Symbol symbol = session.get(Symbol.class, sym);
       if (symbol != null) {
@@ -133,21 +115,26 @@ public class Service {
       Symbol newSymbol = new Symbol();
       newSymbol.setSymbol(sym);
       session.save(newSymbol);
-//      session.flush();
       tx.commit();
       return newSymbol;
     }
   }
 
 
+//  private static Account getAccountById(String id) {
+////    try (Session session = SessionFactoryWrapper.openSession()) {
+////      Transaction tx = session.beginTransaction();
+//      Account account = session.get(Account.class, id);
+//      tx.commit();
+//      return account;
+//    }
+//  }
+
+
   public static Order createOrder(OrderRequest orderRequest) throws RequestException {
     Session session = SessionFactoryWrapper.openSession();
-    Lock lock = SessionFactoryWrapper.getLock("order");
-    lock.lock();
-//    synchronized (lock) {
-//      lock.lock();
     try (session) {
-//        session.doWork(connection -> connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE));
+      session.doWork(connection -> connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE));
       Transaction tx = session.beginTransaction();
       Account account = session.get(Account.class, orderRequest.getAccountId());
       // account not exist
@@ -208,18 +195,15 @@ public class Service {
       tx.commit();
 //      System.out.println("new order id after commit: " + newOrder.getId());
       return newOrder;
-    } finally {
-      lock.unlock();
     }
-//    }
   }
+
 
   // earliest, closest to limit, same symbol, not by same account
   public static void executeMatching(Order newOrder) throws RequestException {
     Session session = SessionFactoryWrapper.openSession();
 
-    Lock lock = SessionFactoryWrapper.getLock("order");
-    lock.lock();
+
     try (session) {
       session.doWork(connection -> connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE));
       Transaction tx = session.beginTransaction();
@@ -243,14 +227,11 @@ public class Service {
       // will stop if all executed, or if no other match could be found
 
       tx.commit();
-    } finally {
-      lock.unlock();
     }
   }
 
   // must be called within a transaction
-  private static void executeBuyToSell(Order buyOrder, Order sellOrder, Session
-          session) throws RequestException {
+  private static void executeBuyToSell(Order buyOrder, Order sellOrder, Session session) throws RequestException {
     // Execute matching
     // find execution price, which is the earlier one
     double executionPrice = sellOrder.getTime() < buyOrder.getTime() ?
@@ -301,12 +282,11 @@ public class Service {
     seller.setBalance(seller.getBalance() + fulfilledAmount * executionPrice);
     session.update(seller);
     // new position / add share to buyer account
-    addPosition(buyOrder.getSymbol(), fulfilledAmount, buyer, session);
+    addPosition(buyOrder.getSymbol(), fulfilledAmount, buyer.getId(), session);
   }
 
   // must inside transaction!
-  private static void splitExecuteOrder(Order toSplit, double splitAmount,
-                                        double executePrice, Session session) {
+  private static void splitExecuteOrder(Order toSplit, double splitAmount, double executePrice, Session session) {
     // child, execute
     Order splitted = new Order();
     splitted.setParentId(toSplit.getId());
@@ -389,15 +369,12 @@ public class Service {
   }
 
 
-  public static List<SubResult> queryOrder(QueryRequest queryRequest) throws
-          RequestException {
+  public static List<SubResult> queryOrder(QueryRequest queryRequest) throws RequestException {
     Session session = SessionFactoryWrapper.openSession();
 //    session.doWork(connection -> connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE));
     List<SubResult> subResults = new ArrayList<>();
-    Lock lock = SessionFactoryWrapper.getLock("order");
-    lock.lock();
     try (session) {
-//      session.doWork(connection -> connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE));
+      session.doWork(connection -> connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE));
       Transaction tx = session.beginTransaction();
 
       Order parentOrder = session.get(Order.class, queryRequest.getTransactionId());
@@ -438,22 +415,17 @@ public class Service {
         subResults.add(subResult);
       }
       tx.commit();
-    } finally {
-      lock.unlock();
     }
     return subResults;
   }
 
 
-  public static List<SubResult> cancelOrder(CancelRequest cancelRequest) throws
-          RequestException {
+  public static List<SubResult> cancelOrder(CancelRequest cancelRequest) throws RequestException {
     Session session = SessionFactoryWrapper.openSession();
 //    session.doWork(connection -> connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE));
     List<SubResult> subResults = new ArrayList<>();
-    Lock lock = SessionFactoryWrapper.getLock("order");
-    lock.lock();
     try (session) {
-//      session.doWork(connection -> connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE));
+      session.doWork(connection -> connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE));
       Transaction tx = session.beginTransaction();
 
       Order parentOrder = session.get(Order.class, cancelRequest.getOrderId());
@@ -507,8 +479,6 @@ public class Service {
         subResults.add(subResult);
       }
       tx.commit();
-    } finally {
-      lock.unlock();
     }
     return subResults;
   }
