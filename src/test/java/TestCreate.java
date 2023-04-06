@@ -83,11 +83,17 @@ public class TestCreate {
 
     Thread.sleep(1000);
     client1.start();
+    Thread.sleep(1000);
     client2.start();
+    Thread.sleep(1000);
     client3.start();
+    Thread.sleep(1000);
     client4.start();
+    Thread.sleep(1000);
     client5.start();
+    Thread.sleep(1000);
     client6.start();
+    Thread.sleep(1000);
     client7.start();
 
     server.join();
@@ -158,7 +164,7 @@ public class TestCreate {
 
   @Test
   public void transAll() throws InterruptedException {
-    Thread server = new Thread(() -> Main.main(null));
+//    Thread server = new Thread(() -> Main.main(null));
     Thread client1 = new Thread(this::trans1);
     Thread client2 = new Thread(this::trans2);
     Thread client3 = new Thread(this::trans3);
@@ -168,7 +174,7 @@ public class TestCreate {
     Thread client7 = new Thread(this::trans7);
 
 
-    server.start();
+//    server.start();
     client1.start();
     client2.start();
     client3.start();

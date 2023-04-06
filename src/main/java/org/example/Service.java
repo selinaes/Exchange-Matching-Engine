@@ -16,22 +16,27 @@ import org.example.results.subResults.SubResult;
 import org.hibernate.Session;
 import org.hibernate.Criteria;
 
+import javax.persistence.PersistenceException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import javax.transaction.Transactional;
 
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.Transaction;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.time.Instant;
 
+@Transactional
 public class Service {
-
   public static Account createAccount(CreateAccount createAccount) throws RequestException {
     Session session = SessionFactoryWrapper.openSession();
+
     try (session) {
+      session.doWork(connection -> connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE));
       Transaction tx = session.beginTransaction();
       if (session.get(Account.class, createAccount.getId()) != null) {
         throw new RequestException("Account already exists");
@@ -46,8 +51,10 @@ public class Service {
   }
 
   // add position to account
+
   public static Account createSymbol(CreateSymbol createSymbol) throws RequestException {
     Session session = SessionFactoryWrapper.openSession();
+    session.doWork(connection -> connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE));
     try (session) {
       Transaction tx = session.beginTransaction();
       Account account = session.get(Account.class, createSymbol.getAccountId());
@@ -58,11 +65,19 @@ public class Service {
       tx.commit();
       return account;
     }
+//    catch (PersistenceException e) {
+//      System.out.println(e.getMessage());
+//      System.out.println(createSymbol.getName() + " ,accountId: " + createSymbol.getAccountId());
+////      throw new RequestException("Account does not exist");
+//      throw new RequestException(e.getMessage());
+//    }
   }
 
   // must be called within a transaction
+
   private static Position addPosition(String sym, double amount, String accountId, Session session) throws RequestException {
     Account account = session.get(Account.class, accountId);
+
     if (account == null) {
       throw new RequestException("Account does not exist");
     }
@@ -80,6 +95,7 @@ public class Service {
       symbol = new Symbol();
       symbol.setSymbol(sym);
       session.save(symbol);
+//      session.flush();
     }
     // create position
     Position position = new Position();
@@ -93,7 +109,7 @@ public class Service {
 
   }
 
-//  private static Symbol createSymbol(String sym, Session session) {
+//  private static Symbol createSymbol(String sym) {
 //    Transaction tx = session.beginTransaction();
 //    Symbol symbol = new Symbol();
 //    symbol.setSymbol(sym);
@@ -116,6 +132,7 @@ public class Service {
   public static Order createOrder(OrderRequest orderRequest) throws RequestException {
     Session session = SessionFactoryWrapper.openSession();
     try (session) {
+      session.doWork(connection -> connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE));
       Transaction tx = session.beginTransaction();
       Account account = session.get(Account.class, orderRequest.getAccountId());
       // account not exist
@@ -184,7 +201,9 @@ public class Service {
   public static void executeMatching(Order newOrder) throws RequestException {
     Session session = SessionFactoryWrapper.openSession();
 
+
     try (session) {
+      session.doWork(connection -> connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE));
       Transaction tx = session.beginTransaction();
 
       List<Order> orders;
@@ -219,9 +238,9 @@ public class Service {
     // split order if needed
     double fulfilledAmount;
     if (buyOrder.getAmount() > sellOrder.getAmount() * -1) {
-      System.out.println("buy order amount > sell order amount");
-      System.out.println("buy order: " + buyOrder);
-      System.out.println("sell order: " + sellOrder);
+//      System.out.println("buy order amount > sell order amount");
+//      System.out.println("buy order: " + buyOrder);
+//      System.out.println("sell order: " + sellOrder);
       splitExecuteOrder(buyOrder, sellOrder.getAmount(), executionPrice, session);
       sellOrder.setStatus(Order.Status.EXECUTED);
       sellOrder.setExecutedPrice(executionPrice);
@@ -229,9 +248,9 @@ public class Service {
       session.update(sellOrder);
       fulfilledAmount = sellOrder.getAmount() * -1;
     } else if (buyOrder.getAmount() < sellOrder.getAmount() * -1) {
-      System.out.println("buy order amount < sell order amount");
-      System.out.println("buy order: " + buyOrder);
-      System.out.println("sell order: " + sellOrder);
+//      System.out.println("buy order amount < sell order amount");
+//      System.out.println("buy order: " + buyOrder);
+//      System.out.println("sell order: " + sellOrder);
       splitExecuteOrder(sellOrder, buyOrder.getAmount(), executionPrice, session);
       buyOrder.setStatus(Order.Status.EXECUTED);
       buyOrder.setExecutedPrice(executionPrice);
@@ -239,9 +258,9 @@ public class Service {
       session.update(buyOrder);
       fulfilledAmount = buyOrder.getAmount();
     } else { // change both status to executed, if no split
-      System.out.println("buy order amount = sell order amount");
-      System.out.println("buy order: " + buyOrder);
-      System.out.println("sell order: " + sellOrder);
+//      System.out.println("buy order amount = sell order amount");
+//      System.out.println("buy order: " + buyOrder);
+//      System.out.println("sell order: " + sellOrder);
       buyOrder.setStatus(Order.Status.EXECUTED);
       buyOrder.setExecutedPrice(executionPrice);
       buyOrder.setTimeToNow();
@@ -350,8 +369,10 @@ public class Service {
 
   public static List<SubResult> queryOrder(QueryRequest queryRequest) throws RequestException {
     Session session = SessionFactoryWrapper.openSession();
+//    session.doWork(connection -> connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE));
     List<SubResult> subResults = new ArrayList<>();
     try (session) {
+      session.doWork(connection -> connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE));
       Transaction tx = session.beginTransaction();
 
       Order parentOrder = session.get(Order.class, queryRequest.getTransactionId());
@@ -399,8 +420,10 @@ public class Service {
 
   public static List<SubResult> cancelOrder(CancelRequest cancelRequest) throws RequestException {
     Session session = SessionFactoryWrapper.openSession();
+//    session.doWork(connection -> connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE));
     List<SubResult> subResults = new ArrayList<>();
     try (session) {
+      session.doWork(connection -> connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE));
       Transaction tx = session.beginTransaction();
 
       Order parentOrder = session.get(Order.class, cancelRequest.getOrderId());
