@@ -45,6 +45,7 @@ public class Parser {
       case "transactions":
         return new TransactionRequest(element);
       default:
+        // TODO: throw exception
         throw new IllegalArgumentException("Invalid request");
     }
   }

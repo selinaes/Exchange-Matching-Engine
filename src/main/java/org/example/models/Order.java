@@ -39,7 +39,7 @@ public class Order {
     OPEN, EXECUTED, CANCELLED
   }
 
-//  @Version
+  @Version
   private Long version;
 
   public Long getVersion() {
