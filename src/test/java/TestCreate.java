@@ -81,19 +81,19 @@ public class TestCreate {
 
     server.start();
 
-    Thread.sleep(1000);
+//    Thread.sleep(1000);
     client1.start();
-    Thread.sleep(1000);
+//    Thread.sleep(1000);
     client2.start();
-    Thread.sleep(1000);
+//    Thread.sleep(1000);
     client3.start();
-    Thread.sleep(1000);
+//    Thread.sleep(1000);
     client4.start();
-    Thread.sleep(1000);
+//    Thread.sleep(1000);
     client5.start();
-    Thread.sleep(1000);
+//    Thread.sleep(1000);
     client6.start();
-    Thread.sleep(1000);
+//    Thread.sleep(1000);
     client7.start();
 
     server.join();
@@ -181,6 +181,7 @@ public class TestCreate {
     client4.start();
     client5.start();
     client6.start();
+//    Thread.sleep(1000);
     client7.start();
 
 //    server.join();

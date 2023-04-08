@@ -7,6 +7,8 @@ import org.example.results.subResults.Opened;
 import org.example.results.subResults.SubResult;
 import org.example.Service;
 
+import java.util.List;
+
 
 public class OrderRequest implements SubTransactionRequest{
   private String accountId;
@@ -60,7 +62,14 @@ public class OrderRequest implements SubTransactionRequest{
       // create a new order, subtract corresponding shares or cash
       newOrder = Service.createOrder(this);
       // get bestMatch order & execute matching till no other match
-      Service.executeMatching(newOrder);
+      //
+//      List<Order> orders = Service.filterCom(this.symbol);
+
+//      do{
+        Service.executeMatching(newOrder);
+//      }
+//      while (newOrder.getStatus().equals(Order.Status.OPEN) && orders.size() != 0);
+
     }
     catch (RequestException e){
       SubResult error = new ErrorResult(e.getMessage());

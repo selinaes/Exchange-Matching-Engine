@@ -8,6 +8,7 @@ import org.example.requests.sub_transaction_requests.SubTransactionRequest;
 
 import org.example.results.Result;
 import org.example.results.subResults.SubResult;
+import org.postgresql.util.PSQLException;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -62,7 +63,9 @@ public class TransactionRequest implements Request {
   public Result execute() {
     Result result = new Result();
     for (SubTransactionRequest subTransactionRequest : subTransactionRequests) {
+
       SubResult subResult = subTransactionRequest.execute();
+
       result.addSubResult(subResult);
     }
     return result;
