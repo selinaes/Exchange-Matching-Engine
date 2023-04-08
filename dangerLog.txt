@@ -29,4 +29,6 @@ with informative message.
  call 'session.update(buyer)' because we thought we updated it inside the other function that we passed the 'buyer' as a
  parameter. We solved this problem by calling 'session.update(buyer)' before the function call.
 
-
+6. Originally when we try to run the server, we got a 'java.lang.NoClassDefFoundError: org/apache/logging/log4j/Logger'
+ error. We tried to add the log4j dependency to the pom.xml file, but it did not work. We then tried to add the log4j
+ dependency to the pom.xml file of the 'hibernate-core' dependency, and it worked.

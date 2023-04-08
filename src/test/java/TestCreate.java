@@ -70,7 +70,7 @@ public class TestCreate {
 
   @Test
   public void createAll() throws InterruptedException {
-    Thread server = new Thread(() -> Main.main(null));
+//    Thread server = new Thread(() -> Main.main(null));
     Thread client1 = new Thread(this::create1);
     Thread client2 = new Thread(this::create2);
     Thread client3 = new Thread(this::create3);
@@ -79,7 +79,7 @@ public class TestCreate {
     Thread client6 = new Thread(this::create6);
     Thread client7 = new Thread(this::create7);
 
-    server.start();
+//    server.start();
 
     Thread.sleep(1000);
     client1.start();
@@ -96,7 +96,7 @@ public class TestCreate {
     Thread.sleep(1000);
     client7.start();
 
-    server.join();
+//    server.join();
     client1.join();
     client2.join();
     client3.join();
