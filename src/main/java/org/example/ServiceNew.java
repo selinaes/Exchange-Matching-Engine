@@ -17,15 +17,12 @@ import org.example.results.subResults.SubResult;
 import org.hibernate.Criteria;
 import org.hibernate.LockMode;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.dialect.lock.PessimisticEntityLockException;
 
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.locks.Lock;
 
 import javax.persistence.LockModeType;
@@ -34,11 +31,10 @@ import javax.persistence.PessimisticLockException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import javax.transaction.Transactional;
 import javax.validation.constraints.NotNull;
 
 //@Transactional
-public class Service {
+public class ServiceNew {
   //  Lock lock;
   //  @Transactional(value = Transactional.TxType.REQUIRED)
   public static Account createAccount(CreateAccount createAccount) throws RequestException {
