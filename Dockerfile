@@ -21,5 +21,5 @@ COPY --from=build /home/gradle/src/build/libs/*.jar /app/
 
 RUN #gradlew run
 
-ENTRYPOINT ["java","-XX:+UseContainerSupport", "-Djava.security.egd=file:/dev/./urandom","-jar","build/libs/stock-exchange-application-1.0-shadow.jar"]
-EXPOSE 12345:12345
+ENTRYPOINT ["java","-XX:+UseContainerSupport", "-Djava.security.egd=file:/dev/./urandom","-jar","/app/stock-exchange-application-1.0-shadow.jar-1.0-SNAPSHOT-all.jar"]
+#EXPOSE 12345:12345

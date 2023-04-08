@@ -383,7 +383,12 @@ public class ServiceNew {
     } catch (PessimisticEntityLockException e) {
 //      System.out.println("PessimisticLockException");
       e.printStackTrace();
+
+//      session.update(buyer);
+      // new position / add share to buyer account
+//      addPosition(buyOrder.getSymbol(), fulfilledAmount, buyer, session);
     }
+
   }
 //    finally {
 //      lock.unlock();
@@ -479,7 +484,7 @@ public class ServiceNew {
       return session.createQuery(query).setLockMode(LockModeType.PESSIMISTIC_WRITE).getResultList();
     } catch (PessimisticLockException e) {
       e.printStackTrace();
-      return null;
+      return new ArrayList<>();
     }
   }
 
@@ -563,10 +568,14 @@ public class ServiceNew {
       }
 
       // find open order with matching id (order's parentId match request's transactionId)
-      Criteria criteria = session.createCriteria(Order.class);
-      criteria.add(Restrictions.eq("parentId", cancelRequest.getOrderId()));
-      criteria.add(Restrictions.eq("status", "OPEN"));
-      List<Order> orders = criteria.list();
+      CriteriaBuilder builder = session.getCriteriaBuilder();
+      CriteriaQuery<Order> query = builder.createQuery(Order.class);
+      Root<Order> root = query.from(Order.class);
+      query.where(
+              builder.equal(root.get("parentId"), cancelRequest.getOrderId()),
+              builder.equal(root.get("status"), Order.Status.OPEN));
+
+      List<Order> orders = session.createQuery(query).getResultList();
 
       // if no open portion, error
       if (orders.size() == 0) {
@@ -591,10 +600,11 @@ public class ServiceNew {
       }
 
       // get all executed portion of the order
-      criteria = session.createCriteria(Order.class);
-      criteria.add(Restrictions.eq("parentId", cancelRequest.getOrderId()));
-      criteria.add(Restrictions.eq("status", "EXECUTED"));
-      List<Order> executedOrders = criteria.list();
+      query.where(
+              builder.equal(root.get("parentId"), cancelRequest.getOrderId()),
+              builder.equal(root.get("status"), Order.Status.EXECUTED));
+      List<Order> executedOrders = session.createQuery(query).getResultList();
+
       for (Order order : executedOrders) {
         SubResult subResult = new Executed();
         subResult.addAttribute("shares", String.valueOf(order.getAmount()));

@@ -4,5 +4,33 @@ duplicate key error.
 2. We used 'Hibernate' to map data tables to Java classes, and used interface like'CriteriaBuilder' to query from
 database. The 'CriteriaBuilder' and 'CriteriaQuery' interfaces are quite new, and is only changed after Hibernate
 5.3+. So at first we used criteriaBuilder.where() two times to query, but only the second sets of predicates worked.
-Finally, we tried using only one criteriaBuilder.where() and it worked. Even though we repeated some code, we know
-know that .where() will replace earlier predicates.
+Finally, we tried using only one criteriaBuilder.where() and it worked. Even though we repeated some code, we now
+know that calling .where() will replace earlier predicates.
+
+3. Handling concurrency: originally we did not handle concurrency, so it only runs correctly with sequential requests.
+We encountered a "pkey already exist" error when trying to create symbol. This could happen when two threads both uses
+the "read-modify-write" cycle to check whether the symbol exists, and both decide to create the symbol. We solved this
+problem by using locks. We used a ConcurrentHashMap to store locks for different tables, and used the table name as the key.
+Each time when the tables are used, we lock the corresponding lock.
+
+4. Malformed requests: we did not handle malformed requests at first, so the server would panic when receiving a malformed
+request. Even though the multithreaded server would continue to receive new requests, the user may not know what's going
+on with the malformed requests. We solved this problem by using try-catch to catch the exception and return a Error Result
+with informative message.
+
+5. When we refactored parts of the code to solve the problem of getting an 'Account' with pessimistic write lock will
+ deadlock with another getting of the same 'Account' in a function that the original function called - we passed that
+ Account as a parameter to the function. This caused another errror: 'org.hibernate.LazyInitializationException: failed
+ to lazily initialize a collection of role: org.example.models.Account.positions, could not initialize proxy - no Session'.
+ At first we are having a hard time finding out where the session stops to exist. Then after printing out the session, etc.,
+ we figured that the session still exist, only that the Account object is not associated with the session anymore. This
+ is because we created a 'buyer' Account variable that is got from a 'buyOrder' - the 'buyOrder' is a part of the session,
+ but the 'buyer' is not. 'Seller' did not have the same issue because we called 'session.update(seller),' but we did not
+ call 'session.update(buyer)' because we thought we updated it inside the other function that we passed the 'buyer' as a
+ parameter. We solved this problem by calling 'session.update(buyer)' before the function call.
+
+6. Originally when we try to run the server, we got a 'java.lang.NoClassDefFoundError: org/apache/logging/log4j/Logger'
+ error. We tried to add the log4j dependency to the pom.xml file, but it did not work. We then tried to add the log4j
+ dependency to the pom.xml file of the 'hibernate-core' dependency, and it worked.
+
+7. Concurrent create order: When received an order, it will perform two transactions: create, execute. An transaction is begin by calling the session.beginTransaction() method. It will flush() and write back to database by calling session.getTransaction().commit(). Once two order received at the same time, it will both create its own order first. If two order matched with each other. It will received OptimisticLockException since only one execution will win. It solved by try-catch block and once it notice the object it try to modify has already been changed. It will rollback the transaction and didn’t perform any operation. Hibernate provides concurrency control through optimistic locking, which ensures thread-safety and prevents data inconsistencies when multiple transactions access the same data simultaneously. To create an order with concurrency control in Hibernate, we use a versioned Long number and annotate in the Order entity with the appropriate annotations.

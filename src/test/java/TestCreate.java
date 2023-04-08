@@ -70,7 +70,7 @@ public class TestCreate {
 
   @Test
   public void createAll() throws InterruptedException {
-    Thread server = new Thread(() -> Main.main(null));
+//    Thread server = new Thread(() -> Main.main(null));
     Thread client1 = new Thread(this::create1);
     Thread client2 = new Thread(this::create2);
     Thread client3 = new Thread(this::create3);
@@ -79,7 +79,7 @@ public class TestCreate {
     Thread client6 = new Thread(this::create6);
     Thread client7 = new Thread(this::create7);
 
-    server.start();
+//    server.start();
 
 //    Thread.sleep(1000);
     client1.start();
@@ -96,7 +96,7 @@ public class TestCreate {
 //    Thread.sleep(1000);
     client7.start();
 
-    server.join();
+//    server.join();
     client1.join();
     client2.join();
     client3.join();
@@ -195,10 +195,62 @@ public class TestCreate {
   }
 
   @Test
+  public void transHalf() throws InterruptedException {
+//    Thread server = new Thread(() -> Main.main(null));
+    Thread client1 = new Thread(this::trans1);
+    Thread client2 = new Thread(this::trans2);
+    Thread client3 = new Thread(this::trans3);
+    Thread client4 = new Thread(this::trans4);
+
+
+//    server.start();
+    client1.start();
+    client2.start();
+    client3.start();
+    client4.start();
+
+//    server.join();
+    client1.join();
+    client2.join();
+    client3.join();
+    client4.join();
+  }
+
+  @Test
+  public void cancelHalf() throws InterruptedException {
+//    Thread server = new Thread(() -> Main.main(null));
+    Thread client1 = new Thread(this::cancel3);
+    Thread client2 = new Thread(this::trans5);
+    Thread client3 = new Thread(this::trans6);
+    Thread client4 = new Thread(this::trans7);
+
+
+//    server.start();
+    client1.start();
+    client2.start();
+    client3.start();
+    client4.start();
+
+//    server.join();
+    client1.join();
+    client2.join();
+    client3.join();
+    client4.join();
+  }
+
+  @Test
   public void query7() {
     UserController client = new UserController();
     client.startConnection("localhost", 12345);
     client.sendFile("src/test/java/query7.txt");
+    client.stopConnection();
+  }
+
+  @Test
+  public void cancel3() {
+    UserController client = new UserController();
+    client.startConnection("localhost", 12345);
+    client.sendFile("src/test/java/cancel3.txt");
     client.stopConnection();
   }
 }

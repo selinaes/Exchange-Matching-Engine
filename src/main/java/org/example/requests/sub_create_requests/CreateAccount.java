@@ -6,6 +6,7 @@ import org.example.results.subResults.Created;
 import org.example.results.subResults.ErrorResult;
 import org.example.results.subResults.SubResult;
 
+
 public class CreateAccount implements SubCreateRequest {
   private String id;
   private double balance;

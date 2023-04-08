@@ -14,7 +14,7 @@ repositories {
 
 shadowJar{
     archiveBaseName = 'stock-exchange-application-1.0-shadow.jar'
-    manifest{
+    manifest {
         attributes(
                 'Main-Class': 'org.example.Main'
         )
@@ -50,6 +50,7 @@ dependencies {
     implementation group: 'org.hibernate', name: 'hibernate-core', version: '5.3.27.Final'
     implementation group: 'org.hibernate.javax.persistence', name: 'hibernate-jpa-2.1-api', version: '1.0.0.Final'
 //    implementation 'javax.persistence:javax.persistence-api:2.2'
+
 }
 
 test {
