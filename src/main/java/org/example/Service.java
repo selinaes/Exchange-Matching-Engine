@@ -34,6 +34,11 @@ public class Service {
   //  Lock lock;
   //  @Transactional(value = Transactional.TxType.REQUIRED)
   public static Account createAccount(CreateAccount createAccount) throws RequestException {
+    try {
+      int d = Integer.parseInt(createAccount.getId());
+    } catch (NumberFormatException nfe) {
+      throw new RequestException("Account id must be an integer");
+    }
     Session session = SessionFactoryWrapper.openSession();
 //    SessionFactoryWrapper.ge
     Lock lock = SessionFactoryWrapper.getLock("account");
@@ -475,10 +480,10 @@ public class Service {
       // find open order with matching id (order's parentId match request's transactionId)
       CriteriaBuilder builder = session.getCriteriaBuilder();
       CriteriaQuery<Order> query = builder.createQuery(Order.class);
-        Root<Order> root = query.from(Order.class);
-        query.where(
-                builder.equal(root.get("parentId"), cancelRequest.getOrderId()),
-                builder.equal(root.get("status"), Order.Status.OPEN));
+      Root<Order> root = query.from(Order.class);
+      query.where(
+              builder.equal(root.get("parentId"), cancelRequest.getOrderId()),
+              builder.equal(root.get("status"), Order.Status.OPEN));
 
       List<Order> orders = session.createQuery(query).getResultList();
 

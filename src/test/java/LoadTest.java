@@ -10,14 +10,14 @@ import java.util.Map;
 
 public class LoadTest {
 
-  public static final int MaxBytes = 10000;
+//  public static final int MaxBytes = 10000;
 
   // map is <AccountId, Balance> <symbol, <accountId, count>>
   private void sendCreateRequest(Map<String, Double> create, Map<String, Map<String, Double>> positions) {
     UserController client = new UserController();
     client.startConnection("localhost", 12345);
     StringBuilder sb = new StringBuilder();
-    sb.append(MaxBytes + "\n<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+    sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
     sb.append("<create>");
     for (Map.Entry<String, Double> entry : create.entrySet()) {
       String accountId = entry.getKey();
@@ -49,23 +49,27 @@ public class LoadTest {
     UserController client = new UserController();
     client.startConnection("localhost", 12345);
     StringBuilder sb = new StringBuilder();
-    sb.append(MaxBytes + "\n<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-    sb.append(String.format("<transaction id=%s>\n", accountId));
+    sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+    sb.append(String.format("<transactions id=\"%s\">\n", accountId));
     for (SubTransactionRequest subTransactionRequest : subTransactionRequests) {
       if (subTransactionRequest instanceof CancelRequest) {
         CancelRequest cancelRequest = (CancelRequest) subTransactionRequest;
-        sb.append(String.format("<cancel id=%s/>\n", cancelRequest.getOrderId()));
+        sb.append(String.format("<cancel id=\"%s\"/>\n", cancelRequest.getOrderId()));
       } else if (subTransactionRequest instanceof OrderRequest) {
         OrderRequest orderRequest = (OrderRequest) subTransactionRequest;
-        sb.append(String.format("<order sym=%s  amount=%s limit=%s/>\n", orderRequest.getSymbol(), orderRequest.getAmount(), orderRequest.getLimit()));
+        sb.append(String.format("<order sym=\"%s\"  amount=\"%s\" limit=\"%s\"/>\n", orderRequest.getSymbol(), orderRequest.getAmount(), orderRequest.getLimit()));
       } else if (subTransactionRequest instanceof QueryRequest) {
         QueryRequest queryRequest = (QueryRequest) subTransactionRequest;
-        sb.append(String.format("<query id=%s/>\n", queryRequest.getTransactionId()));
+        sb.append(String.format("<query id=\"%s\"/>\n", queryRequest.getTransactionId()));
       }
     }
-    sb.append("</transaction>\n");
+    sb.append("</transactions>\n");
+    final String x = sb.toString().length() + "\n" + sb;
+    System.out.println(x);
+    client.sendMessage(x);
+    client.stopConnection();
 //    System.out.println(sb.toString());
-    client.sendMessage(sb.toString());
+//    client.sendMessage(sb.toString());
   }
 
   @Test
@@ -80,5 +84,13 @@ public class LoadTest {
     sendCreateRequest(create, positions);
   }
 
+  @Test
+  public void testTrans() {
+    List<SubTransactionRequest> subTransactionRequests =
+            List.of(new OrderRequest("1", "A", 100, 10.0), new OrderRequest("2", "A", 100, 10.0), new OrderRequest("3", "A", 100, 10.0), new OrderRequest("4", "A", 100, 10.0), new OrderRequest("5", "A", 100, 10.0), new OrderRequest("6", "A", 100, 10.0), new OrderRequest("7", "A", 100, 10.0), new OrderRequest("8", "A", 100, 10.0), new OrderRequest("9", "A", 100, 10.0), new OrderRequest("10", "A", 100, 10.0));
 
+    sendTransaction("1", subTransactionRequests);
+
+
+  }
 }
