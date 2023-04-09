@@ -6,17 +6,14 @@ public class TestLoad {
 
   @Test
   public void testLoad() {
-    int numRequests = 250; // Change this to adjust the number of requests
+    int numRequests = 1000; // Change this to adjust the number of requests
     UserController client = new UserController();
     client.startConnection("localhost", 12345);
     long startTime = System.nanoTime();
     for (int i = 0; i < numRequests; i++) {
       client.sendFile("src/test/java/create1.txt");
-      client.stopConnection();
-
-      client.startConnection("localhost", 12345);
       System.out.println(i + " requests sent");
-//      client.recvMsg();
+      String resp = client.recvMsg();
     }
     long endTime = System.nanoTime();
     long durationMs = (endTime - startTime) / 1000000;

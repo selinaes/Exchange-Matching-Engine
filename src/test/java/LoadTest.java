@@ -12,7 +12,7 @@ public class LoadTest {
 
   public static final int MaxBytes = 10000;
 
-  // map is <symbol, <accountId, count>>
+  // map is <AccountId, Balance> <symbol, <accountId, count>>
   private void sendCreateRequest(Map<String, Double> create, Map<String, Map<String, Double>> positions) {
     UserController client = new UserController();
     client.startConnection("localhost", 12345);

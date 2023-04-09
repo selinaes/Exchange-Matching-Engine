@@ -58,16 +58,13 @@ public class UserController {
     StringBuilder sb = new StringBuilder();
     try {
       String line = this.in.readLine();
-      System.out.println(line);
-      sb.append(line);
-//      System.out.println(sb.toString());
-//      while (line != null) {
-//        sb.append(line);
-//        if (line.endsWith("</results>")) {
-//          break; // exit the loop if we have received the complete message
-//        }
-//        line = in.readLine();
-//      }
+      while (line != null) {
+        sb.append(line);
+        if (line.endsWith("</results>")) {
+          break; // exit the loop if we have received the complete message
+        }
+        line = in.readLine();
+      }
 
     } catch (IOException e) {
       e.printStackTrace();

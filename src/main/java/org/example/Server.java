@@ -57,6 +57,13 @@ public class Server {
           } catch (Exception e) {
             e.printStackTrace();
           }
+          finally {
+            try {
+              client_socket.close();
+            } catch (IOException e) {
+              throw new RuntimeException(e);
+            }
+          }
         }
       });
     }
