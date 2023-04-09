@@ -8,6 +8,7 @@ public class Main {
 
   public static void main(String[] args) {
     try {
+      System.out.println("Stock Exchange Server");
       Server server = new Server(PORT);
       server.run();
     } catch (IOException e) {

@@ -5,7 +5,7 @@ import org.example.models.Order;
 import org.example.results.subResults.ErrorResult;
 import org.example.results.subResults.Opened;
 import org.example.results.subResults.SubResult;
-import org.example.Service;
+import org.example.ServiceNew;
 
 
 public class OrderRequest implements SubTransactionRequest{
@@ -58,9 +58,16 @@ public class OrderRequest implements SubTransactionRequest{
     Order newOrder = null;
     try {
       // create a new order, subtract corresponding shares or cash
-      newOrder = Service.createOrder(this);
+      newOrder = ServiceNew.createOrder(this);
       // get bestMatch order & execute matching till no other match
-      Service.executeMatching(newOrder);
+      //
+//      List<Order> orders = Service.filterCom(this.symbol);
+
+//      do{
+        ServiceNew.executeMatching(newOrder);
+//      }
+//      while (newOrder.getStatus().equals(Order.Status.OPEN) && orders.size() != 0);
+
     }
     catch (RequestException e){
       SubResult error = new ErrorResult(e.getMessage());

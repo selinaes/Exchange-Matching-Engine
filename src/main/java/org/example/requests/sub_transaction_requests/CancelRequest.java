@@ -1,7 +1,7 @@
 package org.example.requests.sub_transaction_requests;
 
 import org.example.RequestException;
-import org.example.Service;
+import org.example.ServiceNew;
 import org.example.results.subResults.Canceled;
 import org.example.results.subResults.ErrorResult;
 import org.example.results.subResults.SubResult;
@@ -36,7 +36,7 @@ public class CancelRequest implements SubTransactionRequest {
   @Override
   public SubResult execute() {
     try {
-      List<SubResult> subResults = Service.cancelOrder(this);
+      List<SubResult> subResults = ServiceNew.cancelOrder(this);
       SubResult canceledResult = new Canceled(subResults);
       canceledResult.addAttribute("id", this.getOrderId());
       return canceledResult;
