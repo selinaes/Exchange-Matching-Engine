@@ -18,11 +18,11 @@ The tests were conducted on a server with the following specifications: Duke VCM
 \section{Experimental Methodology}
 We used load testing to evaluate the performance of the server under different conditions. The tests were performed using Junit. We varied the number of threads and the number of cores used by the server during each test. Each test was repeated 3 times to ensure accuracy. The results were averaged and plotted on a graph.
 \section{Results}
-The results of the scalability experiments are shown in [insert graphs and tables]. We observed [insert trends in results]. The results indicate that [insert conclusions from the results].
+% The results of the scalability experiments are shown in [insert graphs and tables]. We observed [insert trends in results]. The results indicate that [insert conclusions from the results].
 
 \begin{tikzpicture}
-    % \begin{axis}[    xlabel={Number of cores (Explict Lock)},    ylabel={Throughput and mean latency},    ymin=0,    ymax=500,    axis y line*=left,    legend style={at={(0.5,-0.2)},anchor=north},    yticklabel={\pgfmathprintnumber{\tick} requests/s}]
-        \begin{axis}[    xlabel=Cores,    ylabel=Requests per second,    xmin=1,    xmax=4,    ymin=0,    ymax=500,    legend pos=north west,    legend style={at={(1,0)},anchor=south east}  ]
+    \begin{axis}[    xlabel={Number of cores (Explict Lock)},    ylabel={Throughput and mean latency},    ymin=0,    ymax=500,    axis y line*=left,    legend style={at={(0.5,-0.2)},anchor=north},    yticklabel={\pgfmathprintnumber{\tick} requests/s}]
+        % \begin{axis}[    xlabel=Cores,    ylabel=Requests per second,    xmin=1,    xmax=4,    ymin=0,    ymax=500,    legend pos=north west,    legend style={at={(1,0)},anchor=south east}  ]
     \addplot[    color=blue,    mark=square,    ]
         coordinates {
         (4,454.02951191827475)
@@ -50,8 +50,8 @@ The results of the scalability experiments are shown in [insert graphs and table
     \end{tikzpicture}
 
     \begin{tikzpicture}
-        % \begin{axis}[    xlabel={Number of cores (Optimistic Lock)},    ylabel={Throughput and mean latency},    ymin=0,    ymax=500,    axis y line*=left,   legend pos=north west,    legend style={at={(0.5,-0.15)},anchor=north},    yticklabel={\pgfmathprintnumber{\tick} requests/s}]
-            \begin{axis}[    xlabel=Cores,    ylabel=Requests per second,    xmin=1,    xmax=4,    ymin=0,    ymax=500,    legend pos=north west,    legend style={at={(1,0)},anchor=south east}  ]
+        \begin{axis}[    xlabel={Number of cores (Optimistic Lock)},    ylabel={Throughput and mean latency},    ymin=0,    ymax=500,    axis y line*=left,   legend pos=north west,    legend style={at={(0.5,-0.15)},anchor=north},    yticklabel={\pgfmathprintnumber{\tick} requests/s}]
+            % \begin{axis}[    xlabel=Cores,    ylabel=Requests per second,    xmin=1,    xmax=4,    ymin=0,    ymax=500,    legend pos=north west,    legend style={at={(1,0)},anchor=south east}  ]
         \addplot[    color=blue,    mark=square,    ]
             coordinates {
             (4,429.7994269340974)
@@ -64,7 +64,7 @@ The results of the scalability experiments are shown in [insert graphs and table
         \end{axis}
         
         \begin{axis}[    axis y line*=right,    ymin=0,    ymax=4,    ylabel={Mean latency},    yticklabel={\pgfmathprintnumber{\tick} ms}]
-            % \begin{axis}[    xlabel=Cores,    ylabel=Requests per second,    xmin=1,    xmax=4,    ymin=0,    ymax=500,    legend pos=north west,    legend style={at={(1,0)},anchor=south east}  ]
+            % \begin{axis}[    xlabel=Cores (Optimistic Lock),    ylabel=Requests per second,    xmin=1,    xmax=4,    ymin=0,    ymax=500,    legend pos=north west,    legend style={at={(1,0)},anchor=south east}  ]
         % \addlegendimage{/pgfplots/refstyle=throughput}\addlegendentry{Throughput}
         \addplot[    color=orange,    mark=*,    ]
             coordinates {

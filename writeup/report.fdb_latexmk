@@ -1,7 +1,7 @@
 # Fdb version 3
-["pdflatex"] 1681011633 "/Applications/Duke/23Spr/Robust/erss-hwk4-fq18-jl1188/writeup/report.tex" "/Applications/Duke/23Spr/Robust/erss-hwk4-fq18-jl1188/writeup/report.pdf" "report" 1681011634
-  "/Applications/Duke/23Spr/Robust/erss-hwk4-fq18-jl1188/writeup/report.aux" 1681011634 4225 831f48ec6ce7c367a856309577a63161 ""
-  "/Applications/Duke/23Spr/Robust/erss-hwk4-fq18-jl1188/writeup/report.tex" 1681011633 6895 e68ca20fbb87f10f1d28d807881d4bc0 ""
+["pdflatex"] 1681012806 "/Applications/Duke/23Spr/Robust/erss-hwk4-fq18-jl1188/writeup/report.tex" "/Applications/Duke/23Spr/Robust/erss-hwk4-fq18-jl1188/writeup/report.pdf" "report" 1681012807
+  "/Applications/Duke/23Spr/Robust/erss-hwk4-fq18-jl1188/writeup/report.aux" 1681012807 4225 bada533dded5c1c9d81f52428a384dc1 ""
+  "/Applications/Duke/23Spr/Robust/erss-hwk4-fq18-jl1188/writeup/report.tex" 1681012804 6915 5f2c34a16ced455c4cce1e088556e21b ""
   "/usr/local/texlive/2019/texmf-dist/fonts/map/fontname/texfonts.map" 1511824771 3332 103109f5612ad95229751940c61aada0 ""
   "/usr/local/texlive/2019/texmf-dist/fonts/tfm/public/cm/cmbx12.tfm" 1136768653 1324 c910af8c371558dc20f2d7822f66fe64 ""
   "/usr/local/texlive/2019/texmf-dist/fonts/tfm/public/cm/cmmi12.tfm" 1136768653 1524 4414a8315f39513458b80dfc63bff03a ""
@@ -152,11 +152,11 @@
   "/usr/local/texlive/2019/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1557342064 3277517 23507ed665b4dd9046f0f2a94bbef2be ""
   "/usr/local/texlive/2019/texmf-var/web2c/pdftex/pdflatex.fmt" 1557342086 4259635 562fc36ec496993777a6c428d8bfb811 ""
   "/usr/local/texlive/2019/texmf.cnf" 1557341546 577 d150fef99ac436ad1156e86b0892f6ef ""
-  "report.aux" 1681011634 4225 831f48ec6ce7c367a856309577a63161 "pdflatex"
-  "report.tex" 1681011633 6895 e68ca20fbb87f10f1d28d807881d4bc0 ""
+  "report.aux" 1681012807 4225 bada533dded5c1c9d81f52428a384dc1 "pdflatex"
+  "report.tex" 1681012804 6915 5f2c34a16ced455c4cce1e088556e21b ""
   (generated)
+  "report.aux"
   "/Applications/Duke/23Spr/Robust/erss-hwk4-fq18-jl1188/writeup/report.pdf"
+  "/Applications/Duke/23Spr/Robust/erss-hwk4-fq18-jl1188/writeup/report.log"
   "report.pdf"
   "report.log"
-  "report.aux"
-  "/Applications/Duke/23Spr/Robust/erss-hwk4-fq18-jl1188/writeup/report.log"
