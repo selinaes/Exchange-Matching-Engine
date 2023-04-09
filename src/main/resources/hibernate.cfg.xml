@@ -8,12 +8,12 @@
 
         <!-- Connection settings -->
         <property name="hibernate.connection.driver_class">org.postgresql.Driver</property>
-        <property name="hibernate.connection.url">jdbc:postgresql://localhost:5432/stock_exchange
+        <property name="hibernate.connection.url">jdbc:postgresql://db:5432/stock_exchange
         </property>
-                <property name="hibernate.connection.username">jl1188</property>
-                <property name="hibernate.connection.password">stock4</property>
-<!--        <property name="hibernate.connection.username">postgres</property>-->
-<!--        <property name="hibernate.connection.password">ruqiulixia0220</property>-->
+<!--                <property name="hibernate.connection.username">jl1188</property>-->
+<!--                <property name="hibernate.connection.password">stock4</property>-->
+        <property name="hibernate.connection.username">postgres</property>
+        <property name="hibernate.connection.password">postgres</property>
 
         <!-- SQL dialect -->
         <property name="hibernate.dialect">org.hibernate.dialect.PostgreSQL82Dialect</property>
