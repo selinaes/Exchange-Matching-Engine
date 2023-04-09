@@ -38,8 +38,9 @@ public class LoadTest {
       sb.append("</symbol>\n");
     }
     sb.append("</create>\n");
-    System.out.println(sb.toString());
-    client.sendMessage(sb.toString());
+    final String x = sb.toString().length() + "\n" + sb;
+    System.out.println(x);
+    client.sendMessage(x);
 //    client.sendFile("src/test/java/" + filename);
     client.stopConnection();
   }
