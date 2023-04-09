@@ -15,22 +15,26 @@ import org.example.results.subResults.Executed;
 import org.example.results.subResults.Open;
 import org.example.results.subResults.SubResult;
 import org.hibernate.Criteria;
+import org.hibernate.LockMode;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.dialect.lock.PessimisticEntityLockException;
 
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 
+import javax.persistence.LockModeType;
+import javax.persistence.OptimisticLockException;
+import javax.persistence.PessimisticLockException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import javax.validation.constraints.NotNull;
 
 //@Transactional
-public class Service {
+public class ServiceNew {
   //  Lock lock;
   //  @Transactional(value = Transactional.TxType.REQUIRED)
   public static Account createAccount(CreateAccount createAccount) throws RequestException {
@@ -46,7 +50,7 @@ public class Service {
     try (session) {
       Transaction tx = session.beginTransaction();
 
-      if (session.get(Account.class, createAccount.getId()) != null) {
+      if (session.get(Account.class, createAccount.getId(), LockMode.PESSIMISTIC_WRITE) != null) {
         throw new RequestException("Account already exists");
       }
       Account account = new Account();
@@ -68,11 +72,34 @@ public class Service {
     lock.lock();
     try (session) {
       Transaction tx = session.beginTransaction();
-      Account account = session.get(Account.class, createSymbol.getAccountId());
+      Account account = session.get(Account.class, createSymbol.getAccountId(), LockMode.PESSIMISTIC_WRITE);
       if (account == null) {
         throw new RequestException("Account does not exist");
       }
-      addPosition(createSymbol.getName(), createSymbol.getAmount(), account, session);
+
+
+//      String sym = createSymbol.getName();
+//      double amount = createSymbol.getAmount();
+//      for (Position p : account.getPositions()) {
+//        if (p.getSymbol().equals(sym)) {
+//          p.setQuantity(p.getQuantity() + amount);
+//          session.save(p);
+//          session.update(account);
+////          return p;
+//        }
+//      }
+      // create symbol
+//      Symbol symbol = addOrGetSymbol(sym, session);
+//      // create position
+//      Position position = new Position();
+//      position.setSymbol(sym);
+//      position.setQuantity(amount);
+//      position.setAccount(account);
+////    session.saveOrUpdate(symbol);
+//      session.save(position);
+//      session.update(account);
+//      return position;
+      addPosition(createSymbol.getName(), createSymbol.getAmount(), account, session, true);
       tx.commit();
       return account;
     } finally {
@@ -85,22 +112,28 @@ public class Service {
 
   // must be called within a transaction
 
-  private static Position addPosition(String sym, double amount, @NotNull Account account, Session session) throws RequestException {
+  private static Position addPosition(String sym, double amount, @NotNull Account account, Session session, boolean isNew) throws RequestException {
 //    Account account = session.get(Account.class, accountId);
 
 //    if (account == null) {
 //      throw new RequestException("Account does not exist");
 //    }
+//    System.out.println(session);
+//    Account test = session.get(Account.class, account.getId());
+//    System.out.println(test);
+//    System.out.println(account);
     for (Position p : account.getPositions()) {
       if (p.getSymbol().equals(sym)) {
         p.setQuantity(p.getQuantity() + amount);
         session.save(p);
-        session.save(account);
+        session.update(account);
         return p;
       }
     }
     // create symbol
-    Symbol symbol = addOrGetSymbol(sym, session);
+    if (isNew) {
+      Symbol symbol = addOrGetSymbol(sym, session);
+    }
     // create position
     Position position = new Position();
     position.setSymbol(sym);
@@ -108,7 +141,7 @@ public class Service {
     position.setAccount(account);
 //    session.saveOrUpdate(symbol);
     session.save(position);
-    session.save(account);
+    session.update(account);
     return position;
 
   }
@@ -147,20 +180,18 @@ public class Service {
 
   public static Order createOrder(OrderRequest orderRequest) throws RequestException {
     Session session = SessionFactoryWrapper.openSession();
-    Lock lock = SessionFactoryWrapper.getLock("order");
-    lock.lock();
-//    synchronized (lock) {
-//      lock.lock();
+//    Lock lock = SessionFactoryWrapper.getLock("order");
+//    lock.lock();
     try (session) {
 //        session.doWork(connection -> connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE));
       Transaction tx = session.beginTransaction();
-      Account account = session.get(Account.class, orderRequest.getAccountId());
+      Account account = session.get(Account.class, orderRequest.getAccountId(), LockMode.PESSIMISTIC_WRITE);
       // account not exist
       if (account == null) {
         throw new RequestException("Account does not exist");
       }
       // symbol not exist
-      Symbol sym = session.get(Symbol.class, orderRequest.getSymbol());
+      Symbol sym = session.get(Symbol.class, orderRequest.getSymbol(), LockMode.PESSIMISTIC_WRITE);
       if (sym == null) {
         throw new RequestException("Symbol does not exist");
       }
@@ -213,29 +244,35 @@ public class Service {
       tx.commit();
 //      System.out.println("new order id after commit: " + newOrder.getId());
       return newOrder;
-    } finally {
-      lock.unlock();
     }
+//    finally {
+//      lock.unlock();
+//    }
 //    }
   }
 
   // earliest, closest to limit, same symbol, not by same account
+//  @RetryConcurrentOperation
   public static void executeMatching(Order newOrder) throws RequestException {
     Session session = SessionFactoryWrapper.openSession();
 
-    Lock lock = SessionFactoryWrapper.getLock("order");
-    lock.lock();
+//    Session session1 = SessionFac
+
+//    Lock lock = SessionFactoryWrapper.getLock("order");
+//    lock.lock();
+    Transaction tx = null;
     try (session) {
 //      session.doWork(connection -> connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE));
-      Transaction tx = session.beginTransaction();
+      tx = session.beginTransaction();
 
       List<Order> orders;
       do {
         orders = filterCompatibleList(newOrder, session);
-        System.out.println("size: " + orders.size());
-        System.out.println("tttttt" + orders);
+//        System.out.println("size: " + orders.size());
+//        System.out.println("tttttt" + orders);
         if (orders.size() == 0) {
           break;
+//        return;
         }
         Order match = findBestMatchInList(newOrder, orders);
         if (newOrder.getAmount() > 0) { // newOrder is buy order
@@ -248,9 +285,25 @@ public class Service {
       // will stop if all executed, or if no other match could be found
 
       tx.commit();
-    } finally {
-      lock.unlock();
+//      session.refresh(newOrder);
+    } catch (OptimisticLockException e) {
+      System.out.println("found already executed.");
+//      session.clear();
+//      session.close();
     }
+//    catch (OptimisticLockException e) {
+////      Objects.requireNonNull(tx).rollback();
+////
+//
+//      System.out.println("OptimisticLockException");
+////      System.out.println("new order: " + newOrder);
+//      e.printStackTrace();
+//////      create {
+////      executeMatching(newOrder);
+//
+////    finally {
+////
+//    }
   }
 
   // must be called within a transaction
@@ -260,60 +313,92 @@ public class Service {
     // find execution price, which is the earlier one
     double executionPrice = sellOrder.getTime() < buyOrder.getTime() ?
             sellOrder.getLimitPrice() : buyOrder.getLimitPrice();
-    Lock lock = SessionFactoryWrapper.getLock("account");
-    lock.lock();
+//    try {
+    // split order if needed
+//    System.out.println("Order " + buyOrder.getId() + " Version " + buyOrder.getVersion());
+//    System.out.println("Order " + sellOrder.getId() + " Version " + sellOrder.getVersion());
+    double fulfilledAmount;
     try {
-      // split order if needed
-      double fulfilledAmount;
       if (buyOrder.getAmount() > sellOrder.getAmount() * -1) {
 //      System.out.println("buy order amount > sell order amount");
 //      System.out.println("buy order: " + buyOrder);
 //      System.out.println("sell order: " + sellOrder);
+//      System.out.println("Order " + buyOrder.getId() + " Version " + buyOrder.getVersion() + " before split");
         splitExecuteOrder(buyOrder, sellOrder.getAmount(), executionPrice, session);
+//      System.out.println("Order " + buyOrder.getId() + " Version " + buyOrder.getVersion()+ " after split");
+//      System.out.println("Order " + sellOrder.getId() + " Version " + sellOrder.getVersion() + " before set status" );
         sellOrder.setStatus(Order.Status.EXECUTED);
         sellOrder.setExecutedPrice(executionPrice);
         sellOrder.setTimeToNow();
         session.update(sellOrder);
+//      System.out.println("Order " + sellOrder.getId() + "Version " + sellOrder.getVersion()+ " after session update");
         fulfilledAmount = sellOrder.getAmount() * -1;
       } else if (buyOrder.getAmount() < sellOrder.getAmount() * -1) {
 //      System.out.println("buy order amount < sell order amount");
 //      System.out.println("buy order: " + buyOrder);
 //      System.out.println("sell order: " + sellOrder);
+//      System.out.println("Order " + sellOrder.getId() + " Version " + sellOrder.getVersion() + " before split");
         splitExecuteOrder(sellOrder, buyOrder.getAmount(), executionPrice, session);
+//      System.out.println("Order " + sellOrder.getId() + " Version " + sellOrder.getVersion() + " after split");
+//      System.out.println("Order " + buyOrder.getId() + " Version " + buyOrder.getVersion() + " before set status" );
         buyOrder.setStatus(Order.Status.EXECUTED);
+//      System.out.println("Order " + buyOrder.getId() + " Version " + buyOrder.getVersion() + " after set status" );
         buyOrder.setExecutedPrice(executionPrice);
         buyOrder.setTimeToNow();
         session.update(buyOrder);
+//      System.out.println("Order " + buyOrder.getId() + "Version " + buyOrder.getVersion()+ " after session update");
         fulfilledAmount = buyOrder.getAmount();
       } else { // change both status to executed, if no split
-//      System.out.println("buy order amount = sell order amount");
-//      System.out.println("buy order: " + buyOrder);
-//      System.out.println("sell order: " + sellOrder);
+//      System.out.println("Order " + buyOrder.getId() + " Version " + buyOrder.getVersion() + " before set status" );
+
         buyOrder.setStatus(Order.Status.EXECUTED);
         buyOrder.setExecutedPrice(executionPrice);
         buyOrder.setTimeToNow();
+//      System.out.println("Order " + sellOrder.getId() + " Version " + sellOrder.getVersion() + " before set status" );
         sellOrder.setStatus(Order.Status.EXECUTED);
         sellOrder.setExecutedPrice(executionPrice);
         sellOrder.setTimeToNow();
         session.update(buyOrder);
+//      System.out.println("Order " + buyOrder.getId() + "Version " + buyOrder.getVersion()+ " after session update");
         session.update(sellOrder);
+//      System.out.println("Order " + sellOrder.getId() + "Version " + sellOrder.getVersion()+ " after session update");
         fulfilledAmount = buyOrder.getAmount();
       }
 
       // find seller and buyer
-      Account seller = sellOrder.getAccount();
-      Account buyer = buyOrder.getAccount();
+
+//    Account seller = sellOrder.getAccount();
+//    Account buyer = buyOrder.getAccount();
+      String sellerId = sellOrder.getAccount().getId();
+      String buyerId = buyOrder.getAccount().getId();
+      Account seller = session.get(Account.class, sellerId, LockMode.PESSIMISTIC_WRITE);
+      Account buyer = session.get(Account.class, buyerId, LockMode.PESSIMISTIC_WRITE);
 
       // adding money to seller account
       seller.setBalance(seller.getBalance() + fulfilledAmount * executionPrice);
+//    System.out.println("Order " + sellOrder.getId() + "Version " + sellOrder.getVersion()+ " after setBalance");
       session.update(seller);
+//    System.out.println("Order " + sellOrder.getId() + "Version " + sellOrder.getVersion()+ " after update seller");
       session.update(buyer);
+
+
+//     new position / add share to buyer account
+      addPosition(buyOrder.getSymbol(), fulfilledAmount, buyer, session, false);
+//    System.out.println("Order " + sellOrder.getId() + "Version " + buyer.getVersion()+ " after addPosition");
+    } catch (PessimisticEntityLockException e) {
+//      System.out.println("PessimisticLockException");
+      e.printStackTrace();
+
+//      session.update(buyer);
       // new position / add share to buyer account
-      addPosition(buyOrder.getSymbol(), fulfilledAmount, buyer, session);
-    } finally {
-      lock.unlock();
+//      addPosition(buyOrder.getSymbol(), fulfilledAmount, buyer, session);
     }
+
   }
+//    finally {
+//      lock.unlock();
+//    }
+//}
 
   // must inside transaction!
   private static void splitExecuteOrder(Order toSplit, double splitAmount,
@@ -386,17 +471,26 @@ public class Service {
               builder.notEqual(root.get("account").get("id"), newOrder.getAccount().getId()),
               builder.equal(root.get("status"), Order.Status.OPEN),
               builder.lt(root.get("amount"), 0), // buy looking for sell, amount < 0
-              builder.lessThanOrEqualTo(root.get("limitPrice"), newOrder.getLimitPrice())); // match <= newOrder price
+              builder.lessThanOrEqualTo(root.get("limitPrice"), newOrder.getLimitPrice())
+      ).orderBy(builder.asc(root.get("id"))); // match <= newOrder price
     } else if (newOrder.getAmount() < 0) { // sell
       query.where(
-              builder.equal(root.get("symbol"), newOrder.getSymbol()),
-              builder.notEqual(root.get("account").get("id"), newOrder.getAccount().getId()),
-              builder.equal(root.get("status"), Order.Status.OPEN),
-              builder.gt(root.get("amount"), 0), // sell looking for buy, amount > 0
-              builder.greaterThanOrEqualTo(root.get("limitPrice"), newOrder.getLimitPrice())); // match >= newOrder price
+                      builder.equal(root.get("symbol"), newOrder.getSymbol()),
+                      builder.notEqual(root.get("account").get("id"), newOrder.getAccount().getId()),
+                      builder.equal(root.get("status"), Order.Status.OPEN),
+                      builder.gt(root.get("amount"), 0), // sell looking for buy, amount > 0
+                      builder.greaterThanOrEqualTo(root.get("limitPrice"), newOrder.getLimitPrice()))
+              .orderBy(builder.asc(root.get("id"))); // match >= newOrder price
     }
 
-    return session.createQuery(query).getResultList();
+
+//    return session.createQuery(query).getResultList();
+    try {
+      return session.createQuery(query).setLockMode(LockModeType.PESSIMISTIC_WRITE).getResultList();
+    } catch (PessimisticLockException e) {
+      e.printStackTrace();
+      return new ArrayList<>();
+    }
   }
 
 
@@ -405,13 +499,13 @@ public class Service {
     Session session = SessionFactoryWrapper.openSession();
 //    session.doWork(connection -> connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE));
     List<SubResult> subResults = new ArrayList<>();
-    Lock lock = SessionFactoryWrapper.getLock("order");
-    lock.lock();
+//    Lock lock = SessionFactoryWrapper.getLock("order");
+//    lock.lock();
     try (session) {
 //      session.doWork(connection -> connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE));
       Transaction tx = session.beginTransaction();
 
-      Order parentOrder = session.get(Order.class, queryRequest.getTransactionId());
+      Order parentOrder = session.get(Order.class, queryRequest.getTransactionId(), LockMode.PESSIMISTIC_WRITE);
       if (parentOrder == null) { // if orderId not valid, error
         tx.rollback();
         throw new RequestException("Transaction ID not valid");
@@ -449,9 +543,10 @@ public class Service {
         subResults.add(subResult);
       }
       tx.commit();
-    } finally {
-      lock.unlock();
     }
+//    finally {
+//      lock.unlock();
+//    }
     return subResults;
   }
 
@@ -461,13 +556,13 @@ public class Service {
     Session session = SessionFactoryWrapper.openSession();
 //    session.doWork(connection -> connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE));
     List<SubResult> subResults = new ArrayList<>();
-    Lock lock = SessionFactoryWrapper.getLock("order");
-    lock.lock();
+//    Lock lock = SessionFactoryWrapper.getLock("order");
+//    lock.lock();
     try (session) {
 //      session.doWork(connection -> connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE));
       Transaction tx = session.beginTransaction();
 
-      Order parentOrder = session.get(Order.class, cancelRequest.getOrderId());
+      Order parentOrder = session.get(Order.class, cancelRequest.getOrderId(), LockMode.PESSIMISTIC_WRITE);
       if (parentOrder == null) { // if orderId not valid, error
         tx.rollback();
         throw new RequestException("Transaction ID not valid");
@@ -523,9 +618,10 @@ public class Service {
         subResults.add(subResult);
       }
       tx.commit();
-    } finally {
-      lock.unlock();
     }
+//    finally {
+//      lock.unlock();
+//    }
     return subResults;
   }
 

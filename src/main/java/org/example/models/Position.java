@@ -28,7 +28,7 @@ public class Position {
   private Account account;
 
 
-//  @Version
+  @Version
   private Long version;
 
   public Long getVersion() {

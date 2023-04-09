@@ -22,8 +22,8 @@ public class SessionFactoryWrapper {
       this.initSessionFactory();
       lock = new ConcurrentHashMap<>();
       lock.put("account", new ReentrantLock());
-      lock.put("order", new ReentrantLock());
-      lock.put("position", new ReentrantLock());
+//      lock.put("order", new ReentrantLock());
+//      lock.put("position", new ReentrantLock());
       lock.put("symbol", new ReentrantLock());
 
 

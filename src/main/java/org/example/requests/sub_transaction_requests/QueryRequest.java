@@ -1,7 +1,7 @@
 package org.example.requests.sub_transaction_requests;
 
 import org.example.RequestException;
-import org.example.Service;
+import org.example.ServiceNew;
 import org.example.results.subResults.ErrorResult;
 import org.example.results.subResults.Status;
 import org.example.results.subResults.SubResult;
@@ -39,7 +39,7 @@ public class QueryRequest implements SubTransactionRequest {
   @Override
   public SubResult execute() {
     try {
-      List<SubResult> subResults = Service.queryOrder(this);
+      List<SubResult> subResults = ServiceNew.queryOrder(this);
       SubResult statusResult = new Status(subResults);
       statusResult.addAttribute("id", this.getTransactionId());
       return statusResult;

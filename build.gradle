@@ -4,6 +4,7 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '7.1.0'
 }
 
+
 group 'org.example'
 version '1.0-SNAPSHOT'
 
@@ -11,10 +12,12 @@ repositories {
     mavenCentral()
 }
 
-shadowJar {
-    archiveFileName = "stock-exchange-application-1.0-shadow.jar"
+shadowJar{
+    archiveBaseName = 'stock-exchange-application-1.0-shadow.jar'
     manifest {
-        attributes 'Main-Class': 'org.example.Main'
+        attributes(
+                'Main-Class': 'org.example.Main'
+        )
     }
 }
 
@@ -45,7 +48,8 @@ dependencies {
     implementation group: 'javax.validation', name:'validation-api', version: '2.0.1.Final'
     implementation group: 'org.hibernate.validator', name: 'hibernate-validator', version: '6.0.21.Final'
     implementation group: 'org.hibernate', name: 'hibernate-core', version: '5.3.27.Final'
-    implementation group: 'javax.persistence', name: 'javax.persistence-api', version: '2.2'
+    implementation group: 'org.hibernate.javax.persistence', name: 'hibernate-jpa-2.1-api', version: '1.0.0.Final'
+//    implementation 'javax.persistence:javax.persistence-api:2.2'
 
 }
 

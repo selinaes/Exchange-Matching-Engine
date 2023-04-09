@@ -32,14 +32,14 @@ public class Order {
   @Column(nullable = false)
   private Status status;
 
-  @ManyToOne
+  @ManyToOne(cascade = {CascadeType.ALL})
   private Account account;
 
   public enum Status {
     OPEN, EXECUTED, CANCELLED
   }
 
-//  @Version
+  @Version
   private Long version;
 
   public Long getVersion() {

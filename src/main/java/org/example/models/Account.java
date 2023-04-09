@@ -1,5 +1,6 @@
 package org.example.models;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -33,7 +34,7 @@ public class Account {
   private List<Order> orders;
 
 
-//  @Version
+  @Version
   private Long version;
 
 

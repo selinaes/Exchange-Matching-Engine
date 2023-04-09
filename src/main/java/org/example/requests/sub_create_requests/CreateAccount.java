@@ -1,7 +1,7 @@
 package org.example.requests.sub_create_requests;
 
 import org.example.RequestException;
-import org.example.Service;
+import org.example.ServiceNew;
 import org.example.results.subResults.Created;
 import org.example.results.subResults.ErrorResult;
 import org.example.results.subResults.SubResult;
@@ -36,7 +36,7 @@ public class CreateAccount implements SubCreateRequest {
   public SubResult execute() {
 
     try {
-      Service.createAccount(this);
+      ServiceNew.createAccount(this);
       SubResult created = new Created();
       created.addAttribute("id", this.getId());
       return created;
