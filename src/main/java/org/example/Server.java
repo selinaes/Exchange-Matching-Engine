@@ -23,11 +23,13 @@ public class Server {
   private final ServerSocket serverSocket;
   BlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<Runnable>(100);
   ThreadPoolExecutor executor = new ThreadPoolExecutor(10, 100, 5, TimeUnit.MILLISECONDS, workQueue);
-  ArrayList<Client> clients = new ArrayList<>();
+//  ArrayList<Client> clients = new ArrayList<>();
+  int numClients;
 
 
   public Server(int port) throws IOException {
     this.serverSocket = new ServerSocket(port);
+    this.numClients = 0;
 
   }
 
@@ -36,7 +38,10 @@ public class Server {
     while (!Thread.currentThread().isInterrupted()) {
       final Socket client_socket = acceptOrNull();
       Client client = new Client(client_socket);
-      clients.add(client);
+//      clients.add(client);
+      synchronized (this){
+        numClients++;
+      }
       if (client_socket == null) {
         continue;
       }
@@ -45,7 +50,9 @@ public class Server {
         public void run() {
           try {
             // do something with client_socket
-            System.out.println("Client accepted");
+            synchronized (this) {
+              System.out.println("Client accepted" + numClients);
+            }
             handleClient(client);
           } catch (Exception e) {
             e.printStackTrace();
