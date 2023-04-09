@@ -5,6 +5,7 @@ import org.example.requests.sub_transaction_requests.QueryRequest;
 import org.example.requests.sub_transaction_requests.SubTransactionRequest;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -83,6 +84,44 @@ public class LoadTest {
             "F", Map.of("1", 100.0, "2", 200.0, "3", 300.0, "4", 400.0, "5", 500.0, "6", 600.0, "7", 700.0, "8", 800.0, "9", 900.0, "10", 1000.0));
     sendCreateRequest(create, positions);
   }
+
+
+
+  @Test
+  public void testMultiTrans() {
+// Generate 10 sub-transactions
+    for (int i = 1; i < 11; i++) {
+      List<SubTransactionRequest> orders = new ArrayList<>();
+
+      // Generate 3-5 orders per sub-transaction
+      int numOrders = (int) (Math.random() * 3) + 3;
+      for (int j = 0; j < numOrders; j++) {
+        String symbol = "";
+        int amount = 0;
+        double price = 0.0;
+
+        // Randomly choose a symbol, amount, and price for each order
+        switch ((int) (Math.random() * 3)) {
+          case 0:
+            symbol = "BTC";
+            break;
+          case 1:
+            symbol = "AMD";
+            break;
+          case 2:
+            symbol = "AAPL";
+            break;
+        }
+        amount = (int) (Math.random() * 100) - 50;
+        price = Math.random() * 10 + 10;
+
+        orders.add(new OrderRequest(Integer.toString(j), symbol, amount, price));
+      }
+      sendTransaction(String.valueOf(i), orders);
+
+    }
+  }
+
 
   @Test
   public void testTrans() {

@@ -2,24 +2,34 @@
 import org.example.UserController;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class TestLoad {
 
   @Test
   public void testLoad() {
     int numRequests = 1000; // Change this to adjust the number of requests
     UserController client = new UserController();
+    List<Long> latencies = new ArrayList<>();
+
     client.startConnection("localhost", 12345);
     long startTime = System.nanoTime();
     for (int i = 0; i < numRequests; i++) {
+      long requestStartTime = System.nanoTime();
       client.sendFile("src/test/java/create1.txt");
       System.out.println(i + " requests sent");
       String resp = client.recvMsg();
+      long requestEndTime = System.nanoTime();
+      long latencyMs = (requestEndTime - requestStartTime) / 1000000;
+      latencies.add(latencyMs);
     }
     long endTime = System.nanoTime();
     long durationMs = (endTime - startTime) / 1000000;
     client.stopConnection();
     double throughput = numRequests / (durationMs / 1000.0);
-    System.out.println("Sent " + numRequests + " requests in " + durationMs + "ms, throughput: " + throughput + " requests/s");
+    double meanLatency = latencies.stream().mapToLong(Long::longValue).average().orElse(0);
+    System.out.println("Sent " + numRequests + " requests in " + durationMs + "ms, throughput: " + throughput + " requests/s, mean latency: " + meanLatency + " ms");
   }
 
   @Test
