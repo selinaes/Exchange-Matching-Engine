@@ -41,7 +41,7 @@ public class UserController {
   public void sendMessage(String msg) {
     out.println(msg);
 //      String resp = in.readLine();
-    out.write(msg);
+//    out.write(msg);
 //      return resp;
     //    return "null";
   }
