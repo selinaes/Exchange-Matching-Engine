@@ -85,12 +85,23 @@ public class LoadTest {
   }
 
   @Test
+  public void testMultipleCreate() {
+//    int i = 0;
+//    System.out.println((char) (0 + 'a'));
+    int numIteration = 100;
+    for (int i = 0; i < numIteration; i++) {
+      sendCreateRequest(Map.of(String.valueOf(i),
+              (double) i * 1000), Map.of("APPL", Map.of(String.valueOf(i),
+              (double) i * 1000), "BTC", Map.of(String.valueOf(i),
+              (double) i * 1000), "AMD", Map.of(String.valueOf(i),
+              (double) i * 1000)));
+    }
+  }
+
+  @Test
   public void testTrans() {
     List<SubTransactionRequest> subTransactionRequests =
             List.of(new OrderRequest("1", "A", 100, 10.0), new OrderRequest("2", "A", 100, 10.0), new OrderRequest("3", "A", 100, 10.0), new OrderRequest("4", "A", 100, 10.0), new OrderRequest("5", "A", 100, 10.0), new OrderRequest("6", "A", 100, 10.0), new OrderRequest("7", "A", 100, 10.0), new OrderRequest("8", "A", 100, 10.0), new OrderRequest("9", "A", 100, 10.0), new OrderRequest("10", "A", 100, 10.0));
-
     sendTransaction("1", subTransactionRequests);
-
-
   }
 }
