@@ -30,6 +30,7 @@ public class UserController {
       System.out.println("Sending file");
       while ((line = reader.readLine()) != null) {
         out.println(line);
+        System.out.println(line);
       }
     } catch (FileNotFoundException e) {
       throw new RuntimeException(e);
@@ -40,10 +41,7 @@ public class UserController {
 
   public void sendMessage(String msg) {
     out.println(msg);
-//      String resp = in.readLine();
     out.write(msg);
-//      return resp;
-    //    return "null";
   }
 
   public void stopConnection() {
@@ -56,17 +54,25 @@ public class UserController {
     }
   }
 
-  public void recMsg() {
+  public String recvMsg() {
+    StringBuilder sb = new StringBuilder();
     try {
-//      String input = in.readLine();
-      String line = in.readLine();
-      while (line != null) {
-        System.out.println(line);
-        line = in.readLine();
-      }
+      String line = this.in.readLine();
+      System.out.println(line);
+      sb.append(line);
+//      System.out.println(sb.toString());
+//      while (line != null) {
+//        sb.append(line);
+//        if (line.endsWith("</results>")) {
+//          break; // exit the loop if we have received the complete message
+//        }
+//        line = in.readLine();
+//      }
+
     } catch (IOException e) {
       e.printStackTrace();
     }
+    return sb.toString();
   }
 
   public static void main(String[] args) {

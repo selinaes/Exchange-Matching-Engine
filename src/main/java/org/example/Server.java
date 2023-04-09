@@ -21,8 +21,8 @@ import javax.xml.parsers.ParserConfigurationException;
 
 public class Server {
   private final ServerSocket serverSocket;
-  BlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<Runnable>(32);
-  ThreadPoolExecutor executor = new ThreadPoolExecutor(10, 10, 5, TimeUnit.MILLISECONDS, workQueue);
+  BlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<Runnable>(100);
+  ThreadPoolExecutor executor = new ThreadPoolExecutor(10, 100, 5, TimeUnit.MILLISECONDS, workQueue);
   ArrayList<Client> clients = new ArrayList<>();
 
 
@@ -63,13 +63,13 @@ public class Server {
       int xmlLen = Integer.parseInt(length);
       System.out.println("xmlLen is " + xmlLen);
       xml = client.recvBytes(xmlLen);
-
+//      xml = client.recv();
 
       System.out.println("Received xml: ");
       System.out.println(xml);
       Request r = Parser.parseXML(xml);
       Result response = r.execute();
-//      System.out.println(r);
+
       client.send(response.toXMLString());
     } catch (IOException e) {
       Result result = new Result();

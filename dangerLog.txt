@@ -29,6 +29,13 @@ with informative message.
  call 'session.update(buyer)' because we thought we updated it inside the other function that we passed the 'buyer' as a
  parameter. We solved this problem by calling 'session.update(buyer)' before the function call.
 
-6. Originally when we try to run the server, we got a 'java.lang.NoClassDefFoundError: org/apache/logging/log4j/Logger'
- error. We tried to add the log4j dependency to the pom.xml file, but it did not work. We then tried to add the log4j
- dependency to the pom.xml file of the 'hibernate-core' dependency, and it worked.
+6. Originally when we try to run the server with only some of the core, using 'numactl --physcpubind=0,1 --membind=0 java
+-jar ./build/libs/stock-exchange-application-1.0.jar', we got a 'Exception in thread "pool-1-thread-1" java.lang.NoClassDefFoundError:
+ javax/persistence/criteria/Expression' exception. This is weird because we added the 'hibernate-core' and 'javax.persistence'
+ dependency to the build.gradle file. We tried ./gradlew run and it worked. So finally, we used a plugin called 'com.github.
+ johnrengelman.shadow' and used shadowJar to create a fat jar, and running it using numactl worked. This is because the
+ original .jar file did not include the dependencies.
+
+
+
+
