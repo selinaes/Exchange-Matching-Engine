@@ -38,6 +38,11 @@ public class ServiceNew {
   //  Lock lock;
   //  @Transactional(value = Transactional.TxType.REQUIRED)
   public static Account createAccount(CreateAccount createAccount) throws RequestException {
+    try {
+      int d = Integer.parseInt(createAccount.getId());
+    } catch (NumberFormatException nfe) {
+      throw new RequestException("Account id must be an integer");
+    }
     Session session = SessionFactoryWrapper.openSession();
 //    SessionFactoryWrapper.ge
     Lock lock = SessionFactoryWrapper.getLock("account");

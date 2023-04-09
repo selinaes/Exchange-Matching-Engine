@@ -22,7 +22,7 @@ import javax.validation.constraints.Size;
 @Table(name = "accounts")
 public class Account {
   @Id
-  @Size(min = 10, max = 10, message = "Id must be 10 characters")
+//  @Size(min = 10, max = 10, message = "Id must be 10 characters")
   private String id;
 
   private double balance;

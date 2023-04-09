@@ -89,7 +89,7 @@ public class Result {
 //      System.out.println(this.toXML());
 //      System.out.println(writer.getBuffer().toString());
       String xmlString = writer.getBuffer().toString();
-      System.out.println(xmlString);
+//      System.out.println(xmlString);
       return xmlString;
     } catch (TransformerException e) {
       e.printStackTrace();

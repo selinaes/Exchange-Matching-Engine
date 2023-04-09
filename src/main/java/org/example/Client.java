@@ -22,6 +22,9 @@ public class Client {
   private InputStream inputStream;
   private DataInputStream dataInputStream;
 
+
+  private BufferedReader in;
+
   public Client(Socket client_socket) {
     this.socket = client_socket;
     this.setInputOutput();
@@ -33,10 +36,30 @@ public class Client {
       this.inputStream = socket.getInputStream();
       this.dataInputStream = new DataInputStream(new BufferedInputStream(this.inputStream));
 //      this.input = new BufferedReader(new InputStreamReader(inputStream));
+      this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
     } catch (IOException e) {
       e.printStackTrace();
     }
   }
+
+  public String recv() {
+    StringBuilder sb = new StringBuilder();
+    String line;
+    try {
+      while ((line = in.readLine()) != null) {
+        sb.append(line);
+        sb.append("\n"); // add newline character
+        if (line.endsWith("</create>") || line.endsWith("</transactions>")) {
+          break; // exit the loop if we have received the complete message
+        }
+      }
+    } catch (IOException e) {
+      System.out.println("Failed to receive message.");
+      // System.exit(1);
+    }
+    return sb.toString();
+  }
+
 
 
   public String recvLine() throws IOException {
@@ -56,6 +79,13 @@ public class Client {
     return res.toString();
   }
 
+  public String recvAllBytes() throws IOException {
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    byte[] buffer = dataInputStream.readAllBytes();
+//    System.out.println("Received bytes: " + Arrays.toString(buffer));
+    return new String(buffer, StandardCharsets.UTF_8);
+  }
+
   public String recvBytes(int numBytes) throws IOException {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     byte[] buffer = new byte[numBytes];
@@ -66,8 +96,12 @@ public class Client {
   }
 
   public void send(String string) {
-    this.output.write(string);
-    this.output.flush();
+    if (output != null) {
+      output.println(string);
+      System.out.println(string);
+    } else {
+      System.err.println("Failed to send message: output is null.");
+    }
   }
 
 
