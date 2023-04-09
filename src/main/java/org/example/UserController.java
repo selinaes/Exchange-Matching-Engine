@@ -41,7 +41,7 @@ public class UserController {
 
   public void sendMessage(String msg) {
     out.println(msg);
-    out.write(msg);
+
   }
 
   public void stopConnection() {
